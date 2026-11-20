@@ -1,0 +1,15 @@
+---
+title: Applied Statistics 2025
+listing:
+  contents:
+    - "Week*/*/*.ipynb"
+    - "Project/*/*.ipynb"
+    - "DataAndCodeFor*/*.ipynb"
+  type: table
+  sort: "path"
+  fields: [title, path]
+  sort-ui: false
+  filter-ui: true
+---
+
+Rendered notebooks from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course.
