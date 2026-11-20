@@ -12,7 +12,7 @@ Fork of the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/A
 pixi install
 pixi run jupyter notebook   # open a notebook
 pixi run check              # lint, format check, tests
-pixi run docs               # execute all notebooks and build the site in _site/
+pixi run docs               # build the API reference and the site (runs the notebooks in work/) in _site/
 pixi run hooks              # once: install the pre-commit hooks (strips notebook outputs)
 ```
 

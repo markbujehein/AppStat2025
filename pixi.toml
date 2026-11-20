@@ -25,15 +25,21 @@ pytest = "*"
 pre-commit = "*"
 nbstripout = "*"
 quarto = ">=1.11.9,<2"
+quartodoc = ">=0.11.1,<0.12"
 
 [pypi-dependencies]
 appstat = { path = ".", editable = true }
 
 [tasks]
-lint = "ruff check src tests"
-fmt = "ruff format --check src tests"
+lint = "ruff check src tests scripts"
+lint-md = "python scripts/lint_notebooks.py"
+fix-md = "python scripts/lint_notebooks.py --fix"
+fmt = "ruff format --check src tests scripts"
 test = "pytest"
-check = { depends-on = ["lint", "fmt", "test"] }
+check = { depends-on = ["lint", "lint-md", "fmt", "test"] }
 hooks = "pre-commit install"
-docs = "quarto render"
+api = "quartodoc build"
+strip = "nbstripout work/*/*/*.ipynb"
+clean = "python scripts/clean.py"
+docs = { cmd = "quarto render", depends-on = ["api"] }
 preview = "quarto preview"

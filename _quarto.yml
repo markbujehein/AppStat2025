@@ -2,9 +2,8 @@ project:
   type: website
   render:
     - index.qmd
-    - Week*/*/*.ipynb
-    - Project/*/*.ipynb
-    - DataAndCodeFor*/*.ipynb
+    - reference/*.qmd
+    - work/*/*/*.ipynb
 
 website:
   title: Applied Statistics 2025
@@ -15,3 +14,17 @@ website:
 execute:
   enabled: true
   error: true
+
+# API reference for src/appstat, generated from the numpydoc docstrings (pixi run api).
+quartodoc:
+  package: appstat
+  source_dir: src
+  dir: reference
+  parser: numpy
+  sections:
+    - title: appstat
+      desc: Helper functions for the exercises.
+      contents:
+        - stats
+        - fitting
+        - plotting
