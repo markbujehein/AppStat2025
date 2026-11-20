@@ -6,6 +6,12 @@ repos:
         entry: pixi run nbstripout
         language: system
         types: [jupyter]
+      - id: lint-notebooks
+        name: lint notebook markdown
+        entry: pixi run python scripts/lint_notebooks.py
+        language: system
+        types: [jupyter]
+        files: ^work/
       - id: ruff-check
         name: ruff check
         entry: pixi run ruff check
