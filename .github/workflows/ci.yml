@@ -19,6 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: actions/cache@v4
+        with:
+          path: _freeze
+          key: freeze-${{ hashFiles('work/**/*.ipynb') }}
+          restore-keys: freeze-
       - run: pixi run docs
       - uses: actions/upload-pages-artifact@v3
         with:

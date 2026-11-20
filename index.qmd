@@ -1,7 +1,7 @@
 ---
 title: Applied Statistics 2025
 listing:
-  contents: "work/*/*/*.ipynb"
+  contents: "work/Week0/*.ipynb"
   type: table
   sort: "path"
   fields: [title, path]

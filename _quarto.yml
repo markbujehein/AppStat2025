@@ -3,7 +3,7 @@ project:
   render:
     - index.qmd
     - reference/*.qmd
-    - work/*/*/*.ipynb
+    - work/Week0/*.ipynb
 
 website:
   title: Applied Statistics 2025
@@ -14,6 +14,7 @@ website:
 execute:
   enabled: true
   error: true
+  freeze: auto  # re-run a notebook only when its file changed; results live in _freeze/
 
 # API reference for src/appstat, generated from the numpydoc docstrings (pixi run api).
 quartodoc:

@@ -13,7 +13,9 @@ GENERATED = [
     "index-listing.json",
     ".pytest_cache",
     ".ruff_cache",
-    "work/*/*/*_mark.html",  # left behind by an interrupted quarto render
+    "work/*/*_mark.html",  # left behind by an interrupted quarto render
+    "work/*/*_mark_files",
+    "work/*/*/*_mark.html",
     "work/*/*/*_mark_files",
 ]
 

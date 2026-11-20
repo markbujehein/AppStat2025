@@ -39,7 +39,7 @@ test = "pytest"
 check = { depends-on = ["lint", "lint-md", "fmt", "test"] }
 hooks = "pre-commit install"
 api = "quartodoc build"
-strip = "nbstripout work/*/*/*.ipynb"
+strip = "nbstripout work/*/*.ipynb work/*/*/*.ipynb"
 clean = "python scripts/clean.py"
 docs = { cmd = "quarto render", depends-on = ["api"] }
 preview = "quarto preview"
