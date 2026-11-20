@@ -1,0 +1,15 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Jupyter autosave backups
+.ipynb_checkpoints/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+_site/
+.quarto/
+
+/.quarto/
+**/*.quarto_ipynb
