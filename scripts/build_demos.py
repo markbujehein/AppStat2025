@@ -1,4 +1,4 @@
-"""Export the Week1 to Week3 marimo notebooks as interactive pages in ``_site/demos/<name>/``.
+"""Export the Week1 to Week8 marimo notebooks as interactive pages in ``_site/demos/<name>/``.
 
 The pages run in the browser (Pyodide), where ``appstat`` is not installed. So each export uses a
 copy of the notebook that first downloads ``appstat`` from ``public/appstat/`` next to the page.
@@ -34,6 +34,16 @@ BOOTSTRAP = """    import sys
 """
 
 
+# Data files each notebook reads. Listed on purpose: the folders also hold private (student) or very
+# large files, which must not end up on the public site.
+DATA = {
+    "TableMeasurements": ["data_TableMeasurements*.txt"],
+    "CompanySize": ["TableData_Denmark2020.txt"],
+    "RandomDigitsTest": ["data_RandomDigits2025_?.txt", "pi1000000.txt"],
+    "ATLAStestbeam": ["DataSet_AtlasPid_ElectronPion_2GeV.txt"],
+    "Calibration": ["data_calib.txt"],
+    "FisherDiscriminant": ["DataSet_AndersonFisherIris.txt"],
+}
 MODULES = tuple(sorted(p.stem for p in (ROOT / "src" / "appstat").glob("*.py")))
 
 
@@ -45,7 +55,7 @@ def main() -> None:
         package.mkdir(parents=True, exist_ok=True)
         (package / source.name).write_text(text)
 
-    for notebook in sorted((ROOT / "work").glob("Week[123]/*/*_marimo.py")):
+    for notebook in sorted((ROOT / "work").glob("Week[0-9]/*/*_marimo.py")):
         name = notebook.stem.removesuffix("_marimo")
         out = SITE / name
         with tempfile.TemporaryDirectory() as tmp:
@@ -62,8 +72,9 @@ def main() -> None:
                 check=True,
             )
         shutil.copytree(package, out / "public" / "appstat")
-        for data in notebook.parent.glob("*.txt"):  # notebooks read these through public/
-            shutil.copy(data, out / "public" / data.name)
+        for pattern in DATA.get(name, []):  # notebooks read these through public/
+            for data in notebook.parent.glob(pattern):
+                shutil.copy(data, out / "public" / data.name)
         print(f"built {out.relative_to(ROOT)}")
     shutil.rmtree(SITE / "_appstat")
 
