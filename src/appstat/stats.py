@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 from scipy.special import gammaincc, gammaln, xlogy
-from scipy.stats import norm, skew
+from scipy.stats import ks_2samp, norm, skew
 lazy import numpy as np
 
 
@@ -639,3 +639,157 @@ def two_sample_chi2(counts_a: np.ndarray, counts_b: np.ndarray) -> tuple[float, 
         raise ValueError(f"expected equal shapes, got {a.shape} and {b.shape}")
     used = a + b > 0
     return float(np.sum((a[used] - b[used]) ** 2 / (a[used] + b[used]))), int(used.sum())
+
+
+def multinomial_chi2(counts: np.ndarray, probabilities: np.ndarray) -> tuple[float, int]:
+    """
+    Chi-square of bin counts against the probability each bin should have.
+
+    The expected count is ``sum(counts) * probability``. The total is fixed, so one degree of
+    freedom is lost. Bins that cannot occur (probability zero) are left out.
+
+    Parameters
+    ----------
+    counts : np.ndarray
+        Entries in each bin, 1-D.
+    probabilities : np.ndarray
+        The probability of each bin, same shape as ``counts``, summing to one.
+
+    Returns
+    -------
+    chi2 : float
+        ``sum((counts - expected)**2 / expected)``.
+    ndof : int
+        Number of bins that can occur, minus one.
+
+    Raises
+    ------
+    ValueError
+        If the shapes differ, the probabilities do not sum to one, or entries fall in a bin that
+        cannot occur.
+    """
+    counts, probabilities = np.asarray(counts, dtype=float), np.asarray(probabilities, dtype=float)
+    if counts.shape != probabilities.shape:
+        raise ValueError(f"expected equal shapes, got {counts.shape} and {probabilities.shape}")
+    if not np.isclose(probabilities.sum(), 1.0):
+        raise ValueError("the probabilities must sum to one")
+    possible = probabilities > 0
+    if np.any(counts[~possible] > 0):
+        raise ValueError("entries in a bin with probability zero")
+    expected = counts.sum() * probabilities[possible]
+    return float(np.sum((counts[possible] - expected) ** 2 / expected)), int(possible.sum()) - 1
+
+
+def dispersion_chi2(counts: np.ndarray) -> tuple[float, int]:
+    """
+    Chi-square of counts against their own mean: are they as equal as Poisson numbers should be?
+
+    Parameters
+    ----------
+    counts : np.ndarray
+        Counts, for example how often each three-digit sequence occurs. Not all zero.
+
+    Returns
+    -------
+    chi2 : float
+        ``sum((counts - mean)**2) / mean``.
+    ndof : int
+        ``len(counts) - 1``, as the mean was estimated.
+
+    Raises
+    ------
+    ValueError
+        If the mean of the counts is zero.
+    """
+    counts = np.asarray(counts, dtype=float)
+    mean = counts.mean()
+    if mean == 0:
+        raise ValueError("no counts")
+    return float(np.sum((counts - mean) ** 2) / mean), len(counts) - 1
+
+
+def two_sample_pvalues(
+    a: np.ndarray, b: np.ndarray, n_bins: int, value_range: tuple[float, float]
+) -> tuple[float, float, float]:
+    """
+    p-values that two samples come from the same distribution, by three different tests.
+
+    The tests are a comparison of the means, a chi-square between the two histograms, and the
+    Kolmogorov-Smirnov test, which compares the cumulative distributions without any binning.
+
+    Parameters
+    ----------
+    a, b : np.ndarray
+        The two samples, 1-D, of equal length (the histogram chi-square needs that).
+    n_bins : int
+        Bins of the histograms for the chi-square test.
+    value_range : tuple[float, float]
+        Range of the histograms.
+
+    Returns
+    -------
+    p_mean, p_chi2, p_ks : float
+        The p-value of each test. Small means the samples probably differ.
+
+    Raises
+    ------
+    ValueError
+        If a sample is empty, or the samples differ in length.
+    """
+    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+    if len(a) == 0 or len(b) == 0:
+        raise ValueError("both samples need entries")
+    if len(a) != len(b):
+        raise ValueError(f"the histogram chi2 needs equal sizes, got {len(a)} and {len(b)}")
+    error = np.hypot(a.std(ddof=1) / np.sqrt(len(a)), b.std(ddof=1) / np.sqrt(len(b)))
+    z = (a.mean() - b.mean()) / error if error > 0 else 0.0
+    p_mean = 2 * norm.cdf(-abs(z))
+    counts_a, _ = np.histogram(a, bins=n_bins, range=value_range)
+    counts_b, _ = np.histogram(b, bins=n_bins, range=value_range)
+    p_chi2 = chi2_pvalue(*two_sample_chi2(counts_a, counts_b))
+    return float(p_mean), p_chi2, float(ks_2samp(a, b).pvalue)
+
+
+def profile_x(
+    x: np.ndarray,
+    y: np.ndarray,
+    n_bins: int,
+    x_range: tuple[float, float],
+    y_range: tuple[float, float] | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Mean of ``y`` in slices of ``x``, with the uncertainty of each mean.
+
+    Turns a 2-D scatter into a trend that can be fitted with a 1-D function. Slices with fewer
+    than two entries are left out, as they have no spread.
+
+    Parameters
+    ----------
+    x, y : np.ndarray
+        The two variables, 1-D, same length.
+    n_bins : int
+        Number of slices of ``x``.
+    x_range : tuple[float, float]
+        Range of ``x`` that is sliced.
+    y_range : tuple[float, float], optional
+        If given, entries with ``y`` outside this range are ignored, for example wild outliers.
+
+    Returns
+    -------
+    centres, means, errors : np.ndarray
+        Centre of each used slice, the mean of ``y`` in it, and ``std / sqrt(N)``.
+    """
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+    low, high = x_range
+    use = (low <= x) & (x <= high)
+    if y_range is not None:
+        use &= (y_range[0] <= y) & (y <= y_range[1])
+    x, y = x[use], y[use]
+    index = np.minimum(((x - low) / (high - low) * n_bins).astype(int), n_bins - 1)
+    n = np.bincount(index, minlength=n_bins)
+    mean = np.bincount(index, weights=y, minlength=n_bins) / np.maximum(n, 1)
+    squares = np.bincount(index, weights=(y - mean[index]) ** 2, minlength=n_bins)
+    keep = n >= 2
+    error = np.sqrt(squares[keep] / (n[keep] - 1) / n[keep])
+    centres = low + (np.arange(n_bins) + 0.5) * (high - low) / n_bins
+    return centres[keep], mean[keep], error

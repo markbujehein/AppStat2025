@@ -120,3 +120,37 @@ def exp_cos2_cdf(x: np.ndarray) -> np.ndarray:
     return 1.5 * (1 - decay) + 0.5 * (decay * (-a * np.cos(b * x) + b * np.sin(b * x)) + a) / (
         a**2 + b**2
     )
+
+
+def parabola(x: np.ndarray, p0: float, p1: float, p2: float) -> np.ndarray:
+    """``p0 + p1 * x + p2 * x**2``."""
+    return p0 + p1 * x + p2 * x**2
+
+
+def offset_exponential(x: np.ndarray, p0: float, p1: float, p2: float) -> np.ndarray:
+    """``p0 + p1 * exp(p2 * x)``."""
+    return p0 + p1 * np.exp(p2 * x)
+
+
+def apply_corrections(measured: np.ndarray, *relative_biases: np.ndarray) -> np.ndarray:
+    """
+    Remove relative biases from a measurement: ``measured / (1 + f1) / (1 + f2) / ...``.
+
+    A measurement 50 % too high has ``f = 0.5`` and is divided by 1.5.
+
+    Parameters
+    ----------
+    measured : np.ndarray
+        The measured values. Not changed.
+    *relative_biases : np.ndarray
+        One relative bias per effect, each a number or an array like ``measured``.
+
+    Returns
+    -------
+    np.ndarray
+        The corrected values.
+    """
+    corrected = np.asarray(measured, dtype=float)
+    for bias in relative_biases:
+        corrected = corrected / (1 + bias)
+    return corrected
