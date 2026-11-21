@@ -98,6 +98,48 @@ A power law, an exponential and a mix, against four orders of magnitude.
 
 :::
 
+## Week 4: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [Ehrenfest urn](demos/EhrenfestBallExperiment/)
+Markov chains: simulate, then solve with a matrix, and watch the equilibrium.
+:::
+
+::: {.demo-card}
+### [Hypothesis testing](demos/HypothesisTesting/)
+Are two distributions the same? Means, χ² and Kolmogorov-Smirnov compared.
+:::
+
+::: {.demo-card}
+### [Random digits](demos/RandomDigitsTest/)
+Which series of digits are random? Test frequencies, gaps and sequences.
+:::
+
+:::
+
+## Week 5: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [ATLAS test beam](demos/ATLAStestbeam/)
+Electrons or pions: cuts, ROC curves and purity from three detectors.
+:::
+
+::: {.demo-card}
+### [Calibration](demos/Calibration/)
+Correct a distance measurement for the trends of four variables.
+:::
+
+::: {.demo-card}
+### [Fisher discriminant](demos/FisherDiscriminant/)
+Combine variables to separate iris species.
+:::
+
+:::
+
 ## Week 0: notebooks
 
 ::: {#week0}
