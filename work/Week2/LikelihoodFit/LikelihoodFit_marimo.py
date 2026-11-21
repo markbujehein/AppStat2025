@@ -11,9 +11,9 @@ def _():
     import numpy as np
 
     from appstat.fitting import fit_binned_likelihood, fit_least_squares, fit_unbinned_likelihood
+    from appstat.models import exponential_bin_counts
     from appstat.stats import (
         delta_interval,
-        exponential_bin_counts,
         exponential_nll2,
         pearson_chi2,
         poisson_nll2,

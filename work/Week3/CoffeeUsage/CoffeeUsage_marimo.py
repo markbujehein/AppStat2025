@@ -14,7 +14,8 @@ def _():
     from scipy import stats
 
     from appstat.fitting import fit_least_squares
-    from appstat.stats import chi2_pvalue, vacation_line
+    from appstat.models import vacation_line
+    from appstat.stats import chi2_pvalue
 
     DATA, FIT, FIT2 = "#000000", "#0072B2", "#D55E00"
     FIRST_DAY = date(2009, 11, 4)  # day 0

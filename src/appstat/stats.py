@@ -352,30 +352,6 @@ def empirical_pvalue(simulated: np.ndarray, observed: float) -> float:
     return float((np.sum(simulated >= observed) + 1) / (len(simulated) + 1))
 
 
-def exponential_bin_counts(
-    edges: np.ndarray, n_total: float, tau: float | np.ndarray
-) -> np.ndarray:
-    """
-    Expected counts per bin for ``n_total`` exponential values with lifetime ``tau``.
-
-    Parameters
-    ----------
-    edges : np.ndarray
-        Bin edges, 1-D, one more than the number of bins.
-    n_total : float
-        Total number of values, including those outside the bins.
-    tau : float or np.ndarray
-        Lifetime(s), same unit as ``edges``. An array gives one row per lifetime.
-
-    Returns
-    -------
-    np.ndarray
-        Expected counts, shape ``(*np.shape(tau), n_bins)``.
-    """
-    survival = np.exp(-np.asarray(edges) / np.asarray(tau)[..., np.newaxis])
-    return n_total * (survival[..., :-1] - survival[..., 1:])
-
-
 def poisson_nll2(observed: np.ndarray, expected: np.ndarray) -> np.ndarray:
     """
     Binned likelihood: ``-2 ln L`` of Poisson distributed bin counts, summed over the bins.
@@ -584,8 +560,9 @@ def accept_reject(
     Raises
     ------
     ValueError
-        If the range or ``n`` is invalid, or if ``pdf`` exceeds ``ceiling`` at a thrown point,
-        which would give a silently wrong distribution.
+        If the range or ``n`` is invalid, or if ``pdf`` exceeds ``ceiling`` at a thrown point.
+        Only thrown points are checked, so a narrow peak just above the ceiling can be missed with
+        few points: take the ceiling from the maximum of the function.
     """
     if not low < high:
         raise ValueError("need low < high")
@@ -662,68 +639,3 @@ def two_sample_chi2(counts_a: np.ndarray, counts_b: np.ndarray) -> tuple[float, 
         raise ValueError(f"expected equal shapes, got {a.shape} and {b.shape}")
     used = a + b > 0
     return float(np.sum((a[used] - b[used]) ** 2 / (a[used] + b[used]))), int(used.sum())
-
-
-def vacation_line(
-    x: np.ndarray, offset: float, slope: float, length: float, start: float = 40.0
-) -> np.ndarray:
-    """
-    Constant use that pauses for a vacation: a straight line with a flat piece.
-
-    The count is ``offset + slope * x`` until ``start``, stays constant for ``length``, and then
-    continues along the same line, delayed by ``length``.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        Time, for example days since the first measurement.
-    offset : float
-        Value at ``x = 0``.
-    slope : float
-        Increase per unit time while in use.
-    length : float
-        Length of the vacation, same unit as ``x``. Zero gives a plain line.
-    start : float, default 40.0
-        When the vacation starts, same unit as ``x``.
-
-    Returns
-    -------
-    np.ndarray
-        The count at each ``x``.
-    """
-    x = np.asarray(x, dtype=float)
-    time_in_use = x - np.clip(x - start, 0.0, length)
-    return offset + slope * time_in_use
-
-
-def power_law(x: np.ndarray, n: float, alpha: float) -> np.ndarray:
-    """``n * x**(-alpha)``: a power law, equal to ``n`` at ``x = 1``."""
-    return n * np.asarray(x, dtype=float) ** (-alpha)
-
-
-def power_exponential(
-    x: np.ndarray, n: float, f: float, alpha_pow: float, alpha_exp: float
-) -> np.ndarray:
-    """
-    A power law and an exponential in the fraction ``f`` and ``1 - f``.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        Where to evaluate.
-    n : float
-        Overall scale.
-    f : float
-        Fraction in the power law, between 0 and 1.
-    alpha_pow : float
-        Power of the power law part.
-    alpha_exp : float
-        Decay constant of the exponential part, positive. That part is divided by ``alpha_exp``.
-
-    Returns
-    -------
-    np.ndarray
-        ``n * (f * x**-alpha_pow + (1 - f) * exp(-alpha_exp * x) / alpha_exp)``.
-    """
-    x = np.asarray(x, dtype=float)
-    return n * (f * x**-alpha_pow + (1 - f) * np.exp(-alpha_exp * x) / alpha_exp)

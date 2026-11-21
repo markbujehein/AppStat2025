@@ -27,11 +27,14 @@ BOOTSTRAP = """    import sys
 
         _package = Path("/tmp/appstat_src/appstat")
         _package.mkdir(parents=True, exist_ok=True)
-        for _name in ("__init__", "stats", "fitting", "plotting"):
+        for _name in __MODULES__:
             _url = str(mo.notebook_location() / "public" / "appstat" / f"{_name}.py")
             (_package / f"{_name}.py").write_text(urlopen(_url).read().decode())
         sys.path.insert(0, "/tmp/appstat_src")
 """
+
+
+MODULES = tuple(sorted(p.stem for p in (ROOT / "src" / "appstat").glob("*.py")))
 
 
 def main() -> None:
@@ -49,7 +52,9 @@ def main() -> None:
             copy = Path(tmp) / notebook.name
             copy.write_text(
                 notebook.read_text().replace(
-                    "    import marimo as mo\n", "    import marimo as mo\n" + BOOTSTRAP, 1
+                    "    import marimo as mo\n",
+                    "    import marimo as mo\n" + BOOTSTRAP.replace("__MODULES__", repr(MODULES)),
+                    1,
                 )
             )
             subprocess.run(

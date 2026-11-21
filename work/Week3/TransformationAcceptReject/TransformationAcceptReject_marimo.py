@@ -10,11 +10,11 @@ def _():
     import matplotlib.pyplot as plt
     import numpy as np
 
+    from appstat.models import exp_cos2_cdf, exponential_bin_counts, x_cos_x_cdf
     from appstat.stats import (
         accept_reject,
         box_integral,
         chi2_pvalue,
-        exponential_bin_counts,
         pearson_chi2,
         two_sample_chi2,
     )
@@ -38,18 +38,6 @@ def _():
         ax.legend()
         return counts
 
-    def x_cos_x_cdf(x):
-        """Integral of x cos x from 0 to x."""
-        return x * np.sin(x) + np.cos(x) - 1
-
-    def exp_cos2_cdf(x):
-        """Integral of exp(-t/3) cos(t)^2 from 0 to x, using cos^2 = (1 + cos 2t) / 2."""
-        a, b = 1 / 3, 2.0
-        decay = np.exp(-a * np.asarray(x, dtype=float))
-        return 1.5 * (1 - decay) + 0.5 * (decay * (-a * np.cos(b * x) + b * np.sin(b * x)) + a) / (
-            a**2 + b**2
-        )
-
     def fit_quality(counts, expected):
         """Chi-square probability of counts against an exact expectation (no fitted parameters)."""
         chi2, ndof = pearson_chi2(counts, expected)
@@ -61,6 +49,7 @@ def _():
         TRANSFORM,
         accept_reject,
         box_integral,
+        exp_cos2_cdf,
         exponential_bin_counts,
         fit_quality,
         histogram_panel,
@@ -69,7 +58,6 @@ def _():
         plt,
         two_sample_chi2,
         chi2_pvalue,
-        exp_cos2_cdf,
         x_cos_x_cdf,
     )
 

@@ -15,7 +15,8 @@ def _():
     import numpy as np
 
     from appstat.fitting import fit_least_squares
-    from appstat.stats import chi2_pvalue, power_exponential, power_law
+    from appstat.models import power_exponential, power_law
+    from appstat.stats import chi2_pvalue
 
     DATA, FIT = "#000000", "#D55E00"
     NAME = "TableData_Denmark2020.txt"

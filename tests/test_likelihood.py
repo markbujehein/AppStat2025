@@ -5,10 +5,10 @@ import pytest
 from scipy import stats
 
 from appstat.fitting import fit_binned_likelihood, fit_unbinned_likelihood
+from appstat.models import exponential_bin_counts
 from appstat.stats import (
     delta_interval,
     empirical_pvalue,
-    exponential_bin_counts,
     exponential_nll2,
     poisson_nll2,
 )

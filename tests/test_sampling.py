@@ -1,16 +1,9 @@
-"""Tests for random sampling and the shapes used in Week 3 of appstat.stats."""
+"""Tests for random sampling and histogram comparison in appstat.stats."""
 
 import numpy as np
 import pytest
 
-from appstat.stats import (
-    accept_reject,
-    box_integral,
-    power_exponential,
-    power_law,
-    two_sample_chi2,
-    vacation_line,
-)
+from appstat.stats import accept_reject, box_integral, two_sample_chi2
 
 
 def test_accept_reject_returns_n_points_inside_the_range():
@@ -57,7 +50,7 @@ def test_accept_reject_is_reproducible_with_the_same_seed():
     np.testing.assert_array_equal(a, b)
 
 
-def test_accept_reject_rejects_a_ceiling_below_the_function():
+def test_accept_reject_rejects_a_ceiling_below_a_broad_function():
     # IF the box is too low: f(x) = 2x reaches 2 but the ceiling is 1
     # THEN / EXPECT the silently wrong distribution is refused
     with pytest.raises(ValueError):
@@ -103,55 +96,3 @@ def test_two_sample_chi2_rejects_shape_mismatch():
     # THEN / EXPECT
     with pytest.raises(ValueError):
         two_sample_chi2(np.ones(3), np.ones(4))
-
-
-def test_vacation_line_is_a_straight_line_before_the_vacation():
-    # IF the vacation starts at day 40
-    x = np.array([0.0, 10.0, 39.0])
-
-    # THEN
-    y = vacation_line(x, 100.0, 2.0, 14.0)
-
-    # EXPECT offset + slope * x
-    np.testing.assert_allclose(y, 100 + 2 * x)
-
-
-def test_vacation_line_is_flat_during_the_vacation():
-    # THEN
-    y = vacation_line(np.array([40.0, 47.0, 54.0]), 100.0, 2.0, 14.0)
-
-    # EXPECT constant use stops: the value at the start of the vacation
-    np.testing.assert_allclose(y, 100 + 2 * 40)
-
-
-def test_vacation_line_continues_after_the_vacation_shifted_by_its_length():
-    # THEN
-    y = vacation_line(np.array([60.0]), 100.0, 2.0, 14.0)
-
-    # EXPECT the line, delayed by the 14 days of vacation
-    np.testing.assert_allclose(y, 100 + 2 * (60 - 14))
-
-
-def test_vacation_line_accepts_a_zero_length_vacation():
-    # THEN
-    x = np.linspace(0, 100, 11)
-
-    # EXPECT no vacation is the plain line
-    np.testing.assert_allclose(vacation_line(x, 5.0, 3.0, 0.0), 5 + 3 * x)
-
-
-def test_power_law_is_N_at_x_equal_one():
-    # THEN / EXPECT
-    assert power_law(1.0, 500.0, 2.5) == pytest.approx(500.0)
-    assert power_law(2.0, 800.0, 2.0) == pytest.approx(200.0)
-
-
-def test_power_exponential_reduces_to_its_two_parts():
-    # IF
-    x = np.array([1.0, 5.0, 20.0])
-
-    # THEN / EXPECT only the power law when f = 1, only the exponential when f = 0
-    np.testing.assert_allclose(power_exponential(x, 10.0, 1.0, 2.0, 0.1), power_law(x, 10.0, 2.0))
-    np.testing.assert_allclose(
-        power_exponential(x, 10.0, 0.0, 2.0, 0.1), 10.0 * np.exp(-0.1 * x) / 0.1
-    )
