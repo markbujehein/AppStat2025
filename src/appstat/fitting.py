@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 lazy import numpy as np
 lazy from iminuit import Minuit
-lazy from iminuit.cost import LeastSquares
+lazy from iminuit.cost import ExtendedBinnedNLL, ExtendedUnbinnedNLL, LeastSquares
 
 
 def fit_least_squares(
@@ -129,3 +129,84 @@ def polynomial_chi2(y: np.ndarray, x: np.ndarray, sigma: float, degree: int) -> 
     coefficients = np.linalg.lstsq(design, y.T, rcond=None)[0]  # (degree + 1, n_experiments)
     residuals = y - (design @ coefficients).T
     return np.sum((residuals / sigma) ** 2, axis=1)
+
+
+def fit_unbinned_likelihood(
+    model: Callable[..., tuple[float, np.ndarray]],
+    x: np.ndarray,
+    start: dict[str, float],
+) -> Minuit:
+    """
+    Fit ``model`` to the individual values ``x`` by maximising the extended unbinned likelihood.
+
+    No binning is involved, so no information is lost. The number of values is itself fitted.
+
+    Parameters
+    ----------
+    model : Callable[..., tuple[float, np.ndarray]]
+        ``model(x, *parameters)`` returning the expected total number of values and the density
+        (expected number per unit of ``x``) at each ``x``.
+    x : np.ndarray
+        The measured values, 1-D, not empty.
+    start : dict[str, float]
+        Starting value of each parameter, by name.
+
+    Returns
+    -------
+    Minuit
+        The fitted Minuit object. ``fval`` is the negative log likelihood, up to a constant.
+
+    Raises
+    ------
+    ValueError
+        If ``x`` is empty.
+    """
+    x = np.asarray(x, dtype=float)
+    if x.size == 0:
+        raise ValueError("x must not be empty")
+    m = Minuit(ExtendedUnbinnedNLL(x, model), **start)
+    m.migrad()
+    return m
+
+
+def fit_binned_likelihood(
+    model: Callable[..., np.ndarray],
+    counts: np.ndarray,
+    edges: np.ndarray,
+    start: dict[str, float],
+) -> Minuit:
+    """
+    Fit ``model`` to a histogram by maximising the extended binned (Poisson) likelihood.
+
+    Empty bins are fine, unlike in a chi-square fit.
+
+    Parameters
+    ----------
+    model : Callable[..., np.ndarray]
+        ``model(x, *parameters)``: the density (expected number per unit of ``x``), vectorised. It
+        is integrated over each bin approximately.
+    counts : np.ndarray
+        Entries in each bin, 1-D.
+    edges : np.ndarray
+        Bin edges, 1-D, one more than ``counts``.
+    start : dict[str, float]
+        Starting value of each parameter, by name.
+
+    Returns
+    -------
+    Minuit
+        The fitted Minuit object. ``fval`` is the negative log likelihood, up to a constant.
+
+    Raises
+    ------
+    ValueError
+        If ``edges`` does not have one more element than ``counts``.
+    """
+    counts, edges = np.asarray(counts), np.asarray(edges, dtype=float)
+    if len(edges) != len(counts) + 1:
+        raise ValueError(
+            f"need len(counts) + 1 edges, got {len(counts)} counts and {len(edges)} edges"
+        )
+    m = Minuit(ExtendedBinnedNLL(counts, edges, model, use_pdf="approximate"), **start)
+    m.migrad()
+    return m
