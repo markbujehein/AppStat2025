@@ -1,7 +1,4 @@
-"""Tests for appstat.plotting. Skeleton: each test is marked xfail until its function exists.
-
-``strict=True`` turns a passing test into a failure, the reminder to delete the marker.
-"""
+"""Tests for appstat.plotting."""
 
 import matplotlib
 
@@ -10,19 +7,26 @@ matplotlib.use("Agg")  # no window: tests only inspect the figure objects
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pytest  # noqa: E402
+from iminuit import Minuit  # noqa: E402
+from iminuit.cost import LeastSquares  # noqa: E402
 
-from appstat.fitting import FitResult  # noqa: E402
 from appstat.plotting import fit_info_text, plot_chi2_distribution, plot_fit, plot_pulls  # noqa: E402
 
-skeleton = pytest.mark.xfail(raises=NotImplementedError, strict=True, reason="skeleton")
-
-RESULT = FitResult(
-    values={"a": 3.6, "b": 0.3}, errors={"a": 0.2, "b": 0.02}, chi2=12.3, ndof=15, pvalue=0.66
-)
+X = np.arange(10.0)
+Y = 3.6 + 0.3 * X + 0.2 * np.sin(X)
+SIGMA = np.full(10, 0.4)
 
 
 def line(x, a, b):
     return a + b * x
+
+
+@pytest.fixture
+def fit():
+    """A real Minuit fit, made here so that these tests do not depend on appstat.fitting."""
+    minuit = Minuit(LeastSquares(X, Y, SIGMA, line), a=1.0, b=0.0)
+    minuit.migrad()
+    return minuit
 
 
 @pytest.fixture
@@ -32,21 +36,21 @@ def ax():
     plt.close(figure)
 
 
-@skeleton
-def test_fit_info_text_names_chi2_pvalue_and_every_parameter():
+def test_fit_info_text_names_chi2_and_every_parameter(fit):
     # THEN
-    text = fit_info_text(RESULT)
+    text = fit_info_text(fit)
 
     # EXPECT
-    assert "12.3" in text
-    assert "0.66" in text
+    assert f"{fit.fval:.1f}" in text
     assert "a" in text and "b" in text
 
 
-@skeleton
-def test_fit_info_text_gives_the_smaller_error_more_decimals():
-    # THEN the line "b = 0.30 ± 0.02" needs more decimals than "a = 3.6 ± 0.2"
-    lines = fit_info_text(RESULT).splitlines()
+def test_fit_info_text_gives_the_smaller_error_more_decimals(fit):
+    # IF the error on b is smaller than the error on a
+    assert fit.errors["b"] < fit.errors["a"]
+
+    # THEN its line needs more decimals
+    lines = fit_info_text(fit).splitlines()
     line_a = next(entry for entry in lines if entry.startswith("a"))
     line_b = next(entry for entry in lines if entry.startswith("b"))
 
@@ -54,13 +58,9 @@ def test_fit_info_text_gives_the_smaller_error_more_decimals():
     assert len(line_b) > len(line_a)
 
 
-@skeleton
-def test_plot_fit_returns_the_axes_and_draws_data_and_curve(ax):
-    # IF
-    x = np.arange(10.0)
-
+def test_plot_fit_returns_the_axes_and_draws_data_and_curve(ax, fit):
     # THEN
-    returned = plot_fit(ax, x, line(x, 3.6, 0.3), np.full(10, 0.4), line, RESULT)
+    returned = plot_fit(ax, X, Y, SIGMA, line, fit)
 
     # EXPECT
     assert returned is ax
@@ -68,7 +68,6 @@ def test_plot_fit_returns_the_axes_and_draws_data_and_curve(ax):
     assert len(ax.lines) >= 1  # the fitted curve
 
 
-@skeleton
 def test_plot_chi2_distribution_draws_histogram_and_curve(ax):
     # IF chi2 values from many fits with 5 degrees of freedom
     values = np.random.default_rng(0).chisquare(5, size=1000)
@@ -82,14 +81,12 @@ def test_plot_chi2_distribution_draws_histogram_and_curve(ax):
     assert len(ax.lines) >= 1  # the chi2 curve
 
 
-@skeleton
 def test_plot_chi2_distribution_rejects_nonpositive_ndof(ax):
     # THEN / EXPECT
     with pytest.raises(ValueError):
         plot_chi2_distribution(ax, np.array([1.0, 2.0]), ndof=0)
 
 
-@skeleton
 def test_plot_pulls_colours_only_the_large_pulls_red(ax):
     # IF one pull beyond ±2
     pulls = np.array([0.5, -1.0, 2.5, 1.9])

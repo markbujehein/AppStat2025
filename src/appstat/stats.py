@@ -149,7 +149,24 @@ def summary_statistics(x: np.ndarray, y: np.ndarray) -> dict[str, float]:
     ValueError
         If ``x`` and ``y`` differ in shape, or if all ``x`` are equal (no line can be fitted).
     """
-    raise NotImplementedError
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    if x.shape != y.shape:
+        raise ValueError(f"expected equal shapes, got {x.shape} and {y.shape}")
+    if np.ptp(x) == 0:
+        raise ValueError("all x are equal, no line can be fitted")
+
+    slope, intercept = np.polyfit(x, y, 1)
+    return {
+        "mean_x": float(x.mean()),
+        "var_x": float(x.var()),
+        "mean_y": float(y.mean()),
+        "var_y": float(y.var()),
+        "correlation": float(np.corrcoef(x, y)[0, 1]),
+        "slope": float(slope),
+        "intercept": float(intercept),
+    }
 
 
 def leave_one_out_slope_change(x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -176,4 +193,16 @@ def leave_one_out_slope_change(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     ValueError
         If ``x`` and ``y`` differ in shape.
     """
-    raise NotImplementedError
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    if x.shape != y.shape:
+        raise ValueError(f"expected equal shapes, got {x.shape} and {y.shape}")
+
+    slope = np.polyfit(x, y, 1)[0]
+    change = np.full(len(x), np.nan)
+    for i in range(len(x)):  # a handful of points, each with its own meaning
+        keep = np.arange(len(x)) != i
+        if np.ptp(x[keep]) > 0:
+            change[i] = np.polyfit(x[keep], y[keep], 1)[0] - slope
+    return change

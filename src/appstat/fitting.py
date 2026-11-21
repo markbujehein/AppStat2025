@@ -1,33 +1,8 @@
 from collections.abc import Callable
-from dataclasses import dataclass
 
 lazy import numpy as np
-
-
-@dataclass(frozen=True)
-class FitResult:
-    """
-    Outcome of a least-squares fit.
-
-    Attributes
-    ----------
-    values : dict[str, float]
-        Fitted parameter values, by parameter name.
-    errors : dict[str, float]
-        Uncertainty of each fitted parameter, by parameter name.
-    chi2 : float
-        Chi-square at the minimum.
-    ndof : int
-        Degrees of freedom: number of points minus number of fitted parameters.
-    pvalue : float
-        Probability of a chi-square at least as large as ``chi2`` for ``ndof``.
-    """
-
-    values: dict[str, float]
-    errors: dict[str, float]
-    chi2: float
-    ndof: int
-    pvalue: float
+lazy from iminuit import Minuit
+lazy from iminuit.cost import LeastSquares
 
 
 def fit_least_squares(
@@ -36,7 +11,7 @@ def fit_least_squares(
     y: np.ndarray,
     sigma: np.ndarray,
     start: dict[str, float],
-) -> FitResult:
+) -> Minuit:
     """
     Fit ``model`` to ``(x, y)`` by minimising the chi-square, with Minuit.
 
@@ -56,20 +31,34 @@ def fit_least_squares(
 
     Returns
     -------
-    FitResult
-        Values, errors, chi-square, degrees of freedom and p-value.
+    Minuit
+        The fitted Minuit object: ``values``, ``errors``, ``fval`` (the chi-square at the minimum)
+        and ``ndof`` (points minus fitted parameters).
 
     Raises
     ------
     ValueError
         If the shapes differ, any ``sigma`` is not positive, or there are no degrees of freedom.
     """
-    raise NotImplementedError
+    x, y, sigma = (np.asarray(array, dtype=float) for array in (x, y, sigma))
+
+    if not x.shape == y.shape == sigma.shape:
+        raise ValueError(f"expected equal shapes, got {x.shape}, {y.shape} and {sigma.shape}")
+    if np.any(sigma <= 0):
+        raise ValueError("all sigma must be positive")
+    if len(x) <= len(start):
+        raise ValueError(f"need more points than parameters, got {len(x)} and {len(start)}")
+
+    c = LeastSquares(x, y, sigma, model)
+
+    m = Minuit(c, **start)
+    m.migrad()
+    return m
 
 
 def pulls(
     model: Callable[..., np.ndarray],
-    result: FitResult,
+    fit: Minuit,
     x: np.ndarray,
     y: np.ndarray,
     sigma: np.ndarray,
@@ -84,7 +73,7 @@ def pulls(
     ----------
     model : Callable[..., np.ndarray]
         The function that was fitted.
-    result : FitResult
+    fit : Minuit
         The fit to compare with.
     x, y, sigma : np.ndarray
         The data that was fitted, 1-D.
@@ -92,9 +81,10 @@ def pulls(
     Returns
     -------
     np.ndarray
-        ``(y - model(x, **result.values)) / sigma``, 1-D, dimensionless.
+        ``(y - model(x, *fit.values)) / sigma``, 1-D, dimensionless.
     """
-    raise NotImplementedError
+    x, y, sigma = (np.asarray(array, dtype=float) for array in (x, y, sigma))
+    return (y - model(x, *fit.values)) / sigma
 
 
 def polynomial_chi2(y: np.ndarray, x: np.ndarray, sigma: float, degree: int) -> np.ndarray:
@@ -125,4 +115,17 @@ def polynomial_chi2(y: np.ndarray, x: np.ndarray, sigma: float, degree: int) -> 
     ValueError
         If ``y`` does not match ``x``, ``sigma`` is not positive, or ``degree`` is negative.
     """
-    raise NotImplementedError
+    y = np.asarray(y, dtype=float)
+    x = np.asarray(x, dtype=float)
+
+    if degree < 0:
+        raise ValueError(f"degree must not be negative, got {degree}")
+    if sigma <= 0:
+        raise ValueError(f"sigma must be positive, got {sigma}")
+    if y.ndim != 2 or y.shape[1] != x.shape[0]:
+        raise ValueError(f"expected y of shape (n_experiments, {x.shape[0]}), got {y.shape}")
+
+    design = np.vander(x, degree + 1, increasing=True)  # columns 1, x, x², ...
+    coefficients = np.linalg.lstsq(design, y.T, rcond=None)[0]  # (degree + 1, n_experiments)
+    residuals = y - (design @ coefficients).T
+    return np.sum((residuals / sigma) ** 2, axis=1)

@@ -1,22 +1,15 @@
-"""Tests for appstat.stats.summary_statistics and leave_one_out_slope_change.
-
-Skeleton: each test is marked xfail until its function exists. ``strict=True`` turns a passing
-test into a failure, the reminder to delete the marker.
-"""
+"""Tests for appstat.stats.summary_statistics and appstat.stats.leave_one_out_slope_change."""
 
 import numpy as np
 import pytest
 
 from appstat.stats import leave_one_out_slope_change, summary_statistics
 
-skeleton = pytest.mark.xfail(raises=NotImplementedError, strict=True, reason="skeleton")
-
 # Anscombe's first data set
 X1 = np.array([10.0, 8.0, 13.0, 9.0, 11.0, 14.0, 6.0, 4.0, 12.0, 7.0, 5.0])
 Y1 = np.array([8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68])
 
 
-@skeleton
 def test_summary_statistics_of_an_exact_line():
     # IF y = 3 + 0.5 x exactly
     x = np.arange(6.0)
@@ -30,7 +23,6 @@ def test_summary_statistics_of_an_exact_line():
     assert result["correlation"] == pytest.approx(1.0)
 
 
-@skeleton
 def test_summary_statistics_matches_anscombes_published_numbers():
     # IF the first Anscombe set
     # THEN
@@ -46,14 +38,12 @@ def test_summary_statistics_matches_anscombes_published_numbers():
     assert result["intercept"] == pytest.approx(3.0, abs=0.01)
 
 
-@skeleton
 def test_summary_statistics_rejects_shape_mismatch():
     # THEN / EXPECT
     with pytest.raises(ValueError):
         summary_statistics(X1, Y1[:-1])
 
 
-@skeleton
 def test_summary_statistics_rejects_equal_x():
     # IF every x is the same, no line can be fitted
     # THEN / EXPECT
@@ -61,7 +51,6 @@ def test_summary_statistics_rejects_equal_x():
         summary_statistics(np.full(5, 8.0), np.arange(5.0))
 
 
-@skeleton
 def test_leave_one_out_is_zero_for_an_exact_line():
     # IF the points lie exactly on a line, no single point matters
     x = np.arange(8.0)
@@ -73,7 +62,6 @@ def test_leave_one_out_is_zero_for_an_exact_line():
     assert change == pytest.approx(np.zeros(8), abs=1e-9)
 
 
-@skeleton
 def test_leave_one_out_finds_the_outlier():
     # IF one point sits far above an otherwise exact line
     x = np.arange(10.0)
@@ -88,7 +76,6 @@ def test_leave_one_out_finds_the_outlier():
     assert change[7] < 0
 
 
-@skeleton
 def test_leave_one_out_is_nan_when_the_remaining_x_are_equal():
     # IF all x but one are 8 (Anscombe set IV)
     x = np.array([8.0, 8.0, 8.0, 19.0])
@@ -102,7 +89,6 @@ def test_leave_one_out_is_nan_when_the_remaining_x_are_equal():
     assert not np.isnan(change[:3]).any()
 
 
-@skeleton
 def test_leave_one_out_rejects_shape_mismatch():
     # THEN / EXPECT
     with pytest.raises(ValueError):
