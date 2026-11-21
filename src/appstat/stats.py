@@ -545,3 +545,185 @@ def chauvenet(values: np.ndarray, p_global: float = 0.05) -> np.ndarray:
             break
         accepted[farthest] = False
     return accepted
+
+
+def accept_reject(
+    pdf: Callable[[np.ndarray], np.ndarray],
+    low: float,
+    high: float,
+    ceiling: float,
+    n: int,
+    rng: np.random.Generator,
+) -> tuple[np.ndarray, int]:
+    """
+    Random numbers following ``pdf`` by the accept/reject (von Neumann) method.
+
+    Points are thrown uniformly into the box ``[low, high] x [0, ceiling]`` and kept when they
+    fall below the function. Generates in batches, so there is no Python loop over points.
+
+    Parameters
+    ----------
+    pdf : callable
+        The function, vectorised: takes an array of x and returns an array. Need not be normalised.
+    low, high : float
+        The range of x, with ``low < high``.
+    ceiling : float
+        At or above the maximum of ``pdf`` in the range. Higher means lower efficiency.
+    n : int
+        Number of points wanted, at least 1.
+    rng : np.random.Generator
+        Source of random numbers, for reproducibility.
+
+    Returns
+    -------
+    samples : np.ndarray
+        The ``n`` accepted x values.
+    n_tries : int
+        How many points were thrown. ``n / n_tries`` is the efficiency.
+
+    Raises
+    ------
+    ValueError
+        If the range or ``n`` is invalid, or if ``pdf`` exceeds ``ceiling`` at a thrown point,
+        which would give a silently wrong distribution.
+    """
+    if not low < high:
+        raise ValueError("need low < high")
+    if n < 1:
+        raise ValueError("need n >= 1")
+    accepted: list[np.ndarray] = []
+    n_accepted = n_tries = 0
+    while n_accepted < n:
+        x = rng.uniform(low, high, n)
+        y = rng.uniform(0.0, ceiling, n)
+        f = pdf(x)
+        if np.any(f > ceiling):
+            raise ValueError("pdf exceeds the ceiling, so the box does not contain it")
+        hits = np.flatnonzero(y < f)
+        needed = n - n_accepted
+        if len(hits) >= needed:  # last batch: stop at the point that completes n, as a loop would
+            hits = hits[:needed]
+            n_tries += int(hits[-1]) + 1
+        else:
+            n_tries += n
+        accepted.append(x[hits])
+        n_accepted += len(hits)
+    return np.concatenate(accepted), n_tries
+
+
+def box_integral(n_accepted: int, n_tries: int, box_area: float) -> tuple[float, float]:
+    """
+    Integral estimated from the fraction of accepted points in a box, and its uncertainty.
+
+    Parameters
+    ----------
+    n_accepted : int
+        Points that fell below the function.
+    n_tries : int
+        Points thrown into the box.
+    box_area : float
+        Area of the box, ``(high - low) * ceiling``.
+
+    Returns
+    -------
+    integral, error : float
+        ``efficiency * box_area`` and its binomial uncertainty.
+    """
+    efficiency = n_accepted / n_tries
+    error = np.sqrt(efficiency * (1 - efficiency) / n_tries)
+    return float(efficiency * box_area), float(error * box_area)
+
+
+def two_sample_chi2(counts_a: np.ndarray, counts_b: np.ndarray) -> tuple[float, int]:
+    """
+    Chi-square between two histograms with the same binning, to test if they share a distribution.
+
+    Bins empty in both are skipped. No parameter is fitted, so ``ndof`` is the number of bins used.
+
+    Parameters
+    ----------
+    counts_a, counts_b : np.ndarray
+        Bin counts, same shape, from samples of equal size.
+
+    Returns
+    -------
+    chi2 : float
+        ``sum((a - b)**2 / (a + b))`` over the used bins.
+    ndof : int
+        Number of bins used.
+
+    Raises
+    ------
+    ValueError
+        If the shapes differ.
+    """
+    a, b = np.asarray(counts_a, dtype=float), np.asarray(counts_b, dtype=float)
+    if a.shape != b.shape:
+        raise ValueError(f"expected equal shapes, got {a.shape} and {b.shape}")
+    used = a + b > 0
+    return float(np.sum((a[used] - b[used]) ** 2 / (a[used] + b[used]))), int(used.sum())
+
+
+def vacation_line(
+    x: np.ndarray, offset: float, slope: float, length: float, start: float = 40.0
+) -> np.ndarray:
+    """
+    Constant use that pauses for a vacation: a straight line with a flat piece.
+
+    The count is ``offset + slope * x`` until ``start``, stays constant for ``length``, and then
+    continues along the same line, delayed by ``length``.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Time, for example days since the first measurement.
+    offset : float
+        Value at ``x = 0``.
+    slope : float
+        Increase per unit time while in use.
+    length : float
+        Length of the vacation, same unit as ``x``. Zero gives a plain line.
+    start : float, default 40.0
+        When the vacation starts, same unit as ``x``.
+
+    Returns
+    -------
+    np.ndarray
+        The count at each ``x``.
+    """
+    x = np.asarray(x, dtype=float)
+    time_in_use = x - np.clip(x - start, 0.0, length)
+    return offset + slope * time_in_use
+
+
+def power_law(x: np.ndarray, n: float, alpha: float) -> np.ndarray:
+    """``n * x**(-alpha)``: a power law, equal to ``n`` at ``x = 1``."""
+    return n * np.asarray(x, dtype=float) ** (-alpha)
+
+
+def power_exponential(
+    x: np.ndarray, n: float, f: float, alpha_pow: float, alpha_exp: float
+) -> np.ndarray:
+    """
+    A power law and an exponential in the fraction ``f`` and ``1 - f``.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Where to evaluate.
+    n : float
+        Overall scale.
+    f : float
+        Fraction in the power law, between 0 and 1.
+    alpha_pow : float
+        Power of the power law part.
+    alpha_exp : float
+        Decay constant of the exponential part, positive. That part is divided by ``alpha_exp``.
+
+    Returns
+    -------
+    np.ndarray
+        ``n * (f * x**-alpha_pow + (1 - f) * exp(-alpha_exp * x) / alpha_exp)``.
+    """
+    x = np.asarray(x, dtype=float)
+    return n * (f * x**-alpha_pow + (1 - f) * np.exp(-alpha_exp * x) / alpha_exp)

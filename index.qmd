@@ -77,6 +77,27 @@ Outlier rejection, pulls and weighted means on 17 years of student measurements.
 
 :::
 
+## Week 3: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [Transformation and accept/reject](demos/TransformationAcceptReject/)
+Make random numbers follow a function, two ways, and estimate its integral.
+:::
+
+::: {.demo-card}
+### [Coffee usage](demos/CoffeeUsage/)
+Fit the length of the Christmas vacation from a coffee machine's cup counter.
+:::
+
+::: {.demo-card}
+### [Size of Danish companies](demos/CompanySize/)
+A power law, an exponential and a mix, against four orders of magnitude.
+:::
+
+:::
+
 ## Week 0: notebooks
 
 ::: {#week0}
