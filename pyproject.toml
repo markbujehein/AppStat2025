@@ -21,3 +21,7 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "NPY"]
+
+[tool.ruff.lint.per-file-ignores]
+# marimo notebooks: a cell shows its last expression (B018), and markdown tables and prose cannot wrap (E501)
+"work/**/*_marimo.py" = ["B018", "E501"]
