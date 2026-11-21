@@ -136,7 +136,6 @@ def _(mo):
 @app.cell
 def _(mo):
     reveal = mo.ui.switch(label="Show the four data sets")
-    reveal
     return (reveal,)
 
 
@@ -144,9 +143,14 @@ def _(mo):
 def _(DATA, FIT, fit_line, mo, names, np, plt, reveal, x, y):
     mo.stop(
         not reveal.value,
-        mo.callout(
-            mo.md("Waiting for your guess. The plots appear when you flip the switch."),
-            kind="neutral",
+        mo.vstack(
+            [
+                reveal,
+                mo.callout(
+                    mo.md("Waiting for your guess. The plots appear when you flip the switch."),
+                    kind="neutral",
+                ),
+            ]
         ),
     )
     _fig, _axes = plt.subplots(2, 2, figsize=(10, 7.5), sharex=True, sharey=True)
@@ -171,7 +175,7 @@ def _(DATA, FIT, fit_line, mo, names, np, plt, reveal, x, y):
         _ax.set_ylabel("y")
     _axes[0, 0].set(xlim=(3, 20), ylim=(2, 14))
     _fig.tight_layout()
-    _fig
+    mo.vstack([reveal, _fig])
     return
 
 
@@ -196,7 +200,6 @@ def _(mo, names):
         {f"Set {name}": i for i, name in enumerate(names)}, value="Set I", label="Data set"
     )
     leave_out = mo.ui.switch(label="Leave out the ringed point and refit")
-    mo.hstack([chosen, leave_out], justify="start", gap=2)
     return chosen, leave_out
 
 
@@ -284,7 +287,13 @@ def _(
         title="Pulls (grey band: within ±2)",
     )
     _fig.tight_layout()
-    mo.vstack([_fig, mo.callout(mo.md(_summary), kind=_kind)])
+    mo.vstack(
+        [
+            mo.hstack([chosen, leave_out], justify="start", gap=2),
+            _fig,
+            mo.callout(mo.md(_summary), kind=_kind),
+        ]
+    )
     return
 
 
