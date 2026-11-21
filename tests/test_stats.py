@@ -1,4 +1,4 @@
-"""Tests for appstat.stats. Remove the skip marker once the function exists."""
+"""Tests for appstat.stats."""
 
 import numpy as np
 import pytest
