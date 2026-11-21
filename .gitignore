@@ -16,3 +16,5 @@ _site/
 reference/
 objects.json
 _freeze/
+__marimo__/
+.vscode/settings.json

@@ -17,6 +17,7 @@ GENERATED = [
     "work/*/*_mark_files",
     "work/*/*/*_mark.html",
     "work/*/*/*_mark_files",
+    "work/*/*/__marimo__",  # marimo cache
 ]
 
 for pattern in GENERATED:
