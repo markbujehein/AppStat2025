@@ -8,6 +8,23 @@ project:
 website:
   title: Applied Statistics 2025
   repo-url: https://github.com/markbujehein/AppStat2025
+  favicon: favicon.svg
+  navbar:
+    background: "#1d1538"
+    left:
+      - href: index.qmd
+        text: Notebooks
+      - href: reference/index.qmd
+        text: API reference
+    right:
+      - icon: github
+        href: https://github.com/markbujehein/AppStat2025
+        aria-label: GitHub
+
+format:
+  html:
+    theme: theme.scss
+    toc: false
 
 # Notebooks are stored without outputs (nbstripout), so Quarto runs them.
 # error: true keeps a failing notebook on the site, with the traceback shown.

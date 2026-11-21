@@ -42,5 +42,5 @@ hooks = "pre-commit install"
 api = "quartodoc build"
 strip = "nbstripout work/*/*.ipynb work/*/*/*.ipynb"
 clean = "python scripts/clean.py"
-docs = { cmd = "quarto render", depends-on = ["api"] }
+docs = { cmd = "quarto render && python scripts/build_demos.py", depends-on = ["api"] }
 preview = "quarto preview"

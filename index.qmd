@@ -1,12 +1,83 @@
 ---
 title: Applied Statistics 2025
 listing:
-  contents: "work/Week0/*.ipynb"
-  type: table
-  sort: "path"
-  fields: [title, path]
-  sort-ui: false
-  filter-ui: true
+  - id: week0
+    contents: "work/Week0/*.ipynb"
+    type: grid
+    grid-columns: 2
+    sort: "path"
+    fields: [title, description]
+    sort-ui: false
+    filter-ui: false
 ---
 
-Rendered notebooks from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course.
+::: {.lead-in}
+Interactive demonstrations and notebooks from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course. Every demo runs in your browser. The first load takes a few seconds.
+:::
+
+## Week 1: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [Weighted mean and χ²](demos/WeightedMeanSigmaChi2/)
+Combine measurements with different uncertainties, and see what the χ² says about them.
+:::
+
+::: {.demo-card}
+### [Error propagation](demos/ErrorPropagation/)
+The error propagation formula against a simulation, with and without correlations.
+:::
+
+::: {.demo-card}
+### [The χ² test](demos/ChiSquareTest/)
+Simulate many experiments and compare their χ² with the χ² distribution.
+:::
+
+::: {.demo-card}
+### [χ² for three different fits](demos/ChiSquareTest_SeveralExamples/)
+A line, an oscillation and a histogram share one χ² distribution.
+:::
+
+::: {.demo-card}
+### [Anscombe's quartet](demos/AnscombesQuartet/)
+Four data sets with the same numbers, and what only a plot shows.
+:::
+
+::: {.demo-card}
+### [The central limit theorem](demos/CentralLimit/)
+Add random numbers from different distributions and watch the sums turn Gaussian.
+:::
+
+:::
+
+## Week 2: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [Binomial, Poisson and Gaussian](demos/BinomialPoissonGaussian/)
+Three distributions with one mean, and when a χ² fit of counts can be trusted.
+:::
+
+::: {.demo-card}
+### [Three ways to fit a histogram](demos/FittingMethods/)
+χ², binned and unbinned likelihood on the same data, and where they differ.
+:::
+
+::: {.demo-card}
+### [The principle of maximum likelihood](demos/LikelihoodFit/)
+Scan the lifetime, read the uncertainty off the curve, and compare with Minuit.
+:::
+
+::: {.demo-card}
+### [How long is the table?](demos/TableMeasurements/)
+Outlier rejection, pulls and weighted means on 17 years of student measurements.
+:::
+
+:::
+
+## Week 0: notebooks
+
+::: {#week0}
+:::

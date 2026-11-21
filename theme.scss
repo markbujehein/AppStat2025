@@ -1,0 +1,41 @@
+/*-- scss:defaults --*/
+// Palette and type follow https://markbujehein.github.io
+$body-bg: #f8f6ff;
+$body-color: #2d264b;
+$link-color: #a63f00;
+$link-hover-color: #5636d1;
+$font-family-sans-serif: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+$headings-font-family: Georgia, "Times New Roman", serif;
+$headings-color: #1d1538;
+$navbar-bg: #1d1538;
+$navbar-fg: #e9e4fa;
+$navbar-hl: #2ee6b0;
+$code-color: #5636d1;
+$font-size-root: 17px;
+
+/*-- scss:rules --*/
+h1.title { font-size: 2.4rem; letter-spacing: -0.01em; margin-bottom: 0.25rem; }
+.lead-in { color: #5a5078; font-size: 1.1rem; max-width: 38rem; }
+
+.quarto-grid-item.card {
+  background: #fff;
+  border: 1px solid #e1dfe8;
+  border-radius: 6px;
+  box-shadow: none;
+  transition: border-color 0.15s ease;
+}
+.quarto-grid-item.card:hover { border-color: #5636d1; }
+.quarto-grid-item .listing-title { font-family: Georgia, serif; font-size: 1.2rem; }
+.quarto-grid-item .listing-description { color: #5a5078; }
+.quarto-grid-item .card-footer, .quarto-grid-item .card-attribution { display: none; }
+
+footer.footer { color: #5a5078; }
+
+.demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem; }
+.demo-card { background: #fff; border: 1px solid #e1dfe8; border-radius: 6px; padding: 1rem 1.2rem; transition: border-color 0.15s ease; }
+.demo-card:hover { border-color: #5636d1; }
+.demo-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
+.demo-card h3 a { text-decoration: none; }
+.demo-card h3 a::after { content: ""; position: absolute; inset: 0; } // whole card is the link
+.demo-card { position: relative; }
+.demo-card p { margin: 0; color: #5a5078; font-size: 0.95rem; }
