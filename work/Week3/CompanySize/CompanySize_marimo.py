@@ -7,13 +7,12 @@ app = marimo.App()
 @app.cell
 def _():
     import io
-    import sys
-    from urllib.request import urlopen
 
     import marimo as mo
     import matplotlib.pyplot as plt
     import numpy as np
 
+    from appstat.data import read_text
     from appstat.fitting import fit_least_squares
     from appstat.models import power_exponential, power_law
     from appstat.stats import chi2_pvalue
@@ -21,11 +20,7 @@ def _():
     DATA, FIT = "#000000", "#D55E00"
     NAME = "TableData_Denmark2020.txt"
 
-    location = mo.notebook_location()
-    if sys.platform == "emscripten":  # in the browser the data sits in the page's public folder
-        text = urlopen(str(location / "public" / NAME)).read().decode()
-    else:
-        text = (location / NAME).read_text()
+    text = read_text(mo.notebook_location(), NAME)
     table = np.genfromtxt(io.StringIO(text), skip_header=1, usecols=(0, 1))  # "NA" becomes nan
     wanted = (table[:, 0] >= 1) & (
         table[:, 0] <= 199

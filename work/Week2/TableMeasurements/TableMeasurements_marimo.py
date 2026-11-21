@@ -7,14 +7,13 @@ app = marimo.App()
 @app.cell
 def _():
     import io
-    import sys
-    from urllib.request import urlopen
 
     import marimo as mo
     import matplotlib.pyplot as plt
     import numpy as np
     from scipy import stats
 
+    from appstat.data import read_text
     from appstat.fitting import fit_least_squares
     from appstat.plotting import plot_fit
     from appstat.stats import (
@@ -30,12 +29,7 @@ def _():
 
     def read_year(year):
         """The four columns of one year: length and uncertainty for each of the two rulers."""
-        name = f"data_TableMeasurements{year}.txt"
-        location = mo.notebook_location()
-        if sys.platform == "emscripten":  # in the browser the data sits in the page's public folder
-            text = urlopen(str(location / "public" / name)).read().decode()
-        else:
-            text = (location / name).read_text()
+        text = read_text(mo.notebook_location(), f"data_TableMeasurements{year}.txt")
         return np.loadtxt(io.StringIO(text), skiprows=2, unpack=True)
 
     years = [read_year(year) for year in range(2009, 2026)]
