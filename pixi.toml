@@ -6,29 +6,30 @@ platforms = ['linux-64']
 version = "0.1.0"
 
 [dependencies]
-python = "3.13.*"
-numpy = "*"
-matplotlib = "*"
-scipy = "*"
-pandas = "*"
-sympy = "*"
-iminuit = "*"
-notebook = "*"
-ipython = "*"
-ipywidgets = "*"
+python = ">=3.15.2,<3.16"
+numpy = ">=2.5.5,<3"
+matplotlib = ">=3.11.2,<4"
+scipy = ">=1.18.1,<2"
+pandas = ">=3.1.1,<4"
+sympy = ">=1.14.0,<2"
+iminuit = ">=2.33.0,<3"
+notebook = ">=7.6.5,<8"
+ipython = ">=9.18.1,<10"
+ipywidgets = ">=8.1.9,<9"
 scikit-learn = ">=1.9.1,<2"
 seaborn = ">=0.13.2,<0.14"
 tqdm = ">=4.70.1,<5"
 ty = ">=0.0.107,<0.0.108"
 ruff = ">=0.17.6,<0.18"
-pytest = "*"
-pre-commit = "*"
-nbstripout = "*"
+pytest = ">=9.2.0,<10"
+pre-commit = ">=4.7.0,<5"
+nbstripout = ">=0.9.2,<0.10"
 quarto = ">=1.11.9,<2"
 quartodoc = ">=0.11.1,<0.12"
 
 [pypi-dependencies]
 appstat = { path = ".", editable = true }
+marimo = { version = ">=0.25.2, <0.26", extras = ["recommended"] }
 
 [tasks]
 lint = "ruff check src tests scripts"

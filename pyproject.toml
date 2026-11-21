@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "appstat"
 version = "0.1.0"
 description = "Helper functions for the Applied Statistics 2025 course exercises"
-requires-python = ">=3.13"
+requires-python = ">=3.15"
 dependencies = ["numpy", "scipy", "iminuit", "matplotlib"]
 
 [tool.hatch.build.targets.wheel]
