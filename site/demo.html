@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}} – Applied Statistics 2025</title>
+  <link rel="icon" href="../../favicon.svg">
+  <link rel="stylesheet" href="../../site/site.css">
+</head>
+<body>
+{{header}}
+<main class="demo-page">
+  <p class="back"><a href="../../index.html">All demos</a></p>
+  <h1>{{title}}</h1>
+  <p class="what">{{description}}</p>
+  <div class="tags">{{tags}}</div>
+  <div class="modes" role="tablist">
+    <button type="button" role="tab" data-mode="static"{{static_hidden}}>Read</button>
+    <button type="button" role="tab" data-mode="app">Run in your browser</button>
+  </div>
+  <section class="frame" data-mode="static"{{static_hidden}}>
+    <div class="skeleton" aria-hidden="true"></div>
+    <iframe title="{{title}}, read-only" data-src="static.html"></iframe>
+  </section>
+  <section class="frame" data-mode="app" hidden>
+    <div class="load">
+      <p>Python runs in this tab, so the first start takes about half a minute. Later starts are cached.</p>
+      <button type="button" class="run">Start the interactive demo</button>
+    </div>
+    <div class="skeleton" aria-hidden="true" hidden></div>
+    <iframe title="{{title}}, interactive" data-src="app/" hidden></iframe>
+  </section>
+</main>
+<script src="../../site/demo.js" type="module"></script>
+</body>
+</html>

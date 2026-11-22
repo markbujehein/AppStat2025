@@ -7,12 +7,14 @@ downloaded copy has plain imports. The files in ``src/`` and ``work/`` are not c
 """
 
 import hashlib
+import html
 import json
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import yaml
@@ -89,8 +91,6 @@ def write_landing() -> None:
     header = (ROOT / "site" / "header.html").read_text().replace('"../', '"./')
     page = page.replace("{{header}}", header).replace("{{data}}", data)
     (SITE.parent / "index.html").write_text(page)
-    (SITE.parent / "site").mkdir(exist_ok=True)
-    shutil.copy(ROOT / "site" / "landing.js", SITE.parent / "site" / "landing.js")
 
 
 def appstat_modules(text: str, sources: dict[str, str]) -> set[str]:
@@ -125,50 +125,93 @@ def tree_hash(path: Path) -> str:
     return digest.hexdigest()
 
 
-def share_assets(demos: list[Path]) -> None:
-    """Keep one copy of the marimo frontend. Every export ships the same 28 MB, so the browser
-    would download it again for each demo. A demo whose copy differs keeps its own."""
-    reference = tree_hash(demos[0] / "assets")
-    shutil.copytree(demos[0] / "assets", SITE / "assets")
-    for demo in demos:
-        if tree_hash(demo / "assets") != reference:
-            print(f"{demo.name}: assets differ from {demos[0].name}, not shared")
+def share_assets(apps: list[Path]) -> None:
+    """Keep one copy of the marimo frontend in ``demos/assets``.
+
+    Every export ships the same 28 MB, so the browser would download it again for each demo.
+    An app whose copy differs keeps its own.
+    """
+    reference = tree_hash(apps[0] / "assets")
+    shutil.copytree(apps[0] / "assets", SITE / "assets")
+    for app in apps:
+        if tree_hash(app / "assets") != reference:
+            print(f"{app.parent.name}: assets differ from {apps[0].parent.name}, not shared")
             continue
-        shutil.rmtree(demo / "assets")
-        page = demo / "index.html"
-        page.write_text(page.read_text().replace("./assets/", "../assets/"))
+        shutil.rmtree(app / "assets")
+        page = app / "index.html"
+        page.write_text(page.read_text().replace("./assets/", "../../assets/"))
+
+
+def build_demo(notebook: Path, sources: dict[str, str]) -> Path:
+    """Export one notebook as a static page and as a Pyodide app. Returns the app folder."""
+    name = notebook.stem.removesuffix("_marimo")
+    out = SITE / name
+    text = notebook.read_text()
+    modules = appstat_modules(text, sources)
+    with tempfile.TemporaryDirectory() as tmp:
+        copy = Path(tmp) / notebook.name
+        copy.write_text(with_bootstrap(name, text, modules, sources) if modules else text)
+        subprocess.run(
+            ["marimo", "export", "html-wasm", str(copy), "-o", str(out / "app"), "--mode", "run"]
+            + ["-f"],
+            check=True,
+            capture_output=True,
+        )
+    # The static page runs the notebook here, where appstat is installed. Without it the demo
+    # page offers only the interactive tab.
+    static = subprocess.run(
+        ["marimo", "export", "html", str(notebook), "-o", str(out / "static.html")]
+        + ["--no-include-code", "-f"],
+        capture_output=True,
+    )
+    if static.returncode:
+        print(f"{name}: static export failed, interactive only")
+    if modules:  # one file to download instead of one per module
+        bundle = "\f".join(f"{m}\n{sources[m]}" for m in ("__init__", *sorted(modules)))
+        (SITE / "public" / "appstat" / f"{name}.txt").write_text(bundle)
+    for pattern in DATA.get(name, []):  # notebooks read these through public/
+        for data in notebook.parent.glob(pattern):
+            shutil.copy(data, SITE / "public" / data.name)
+    write_demo_page(name, has_static=not static.returncode)
+    print(f"built {name}")
+    return out / "app"
+
+
+def write_demo_page(name: str, *, has_static: bool) -> None:
+    """``demos/<name>/index.html``: title, a Read tab and a Run tab around the two exports."""
+    demo = next(
+        d for d in yaml.safe_load((ROOT / "demos.yml").read_text()) if d["path"] == f"demos/{name}/"
+    )
+    tags = "".join(f'<span class="tag">{t}</span>' for t in demo["categories"])
+    header = (ROOT / "site" / "header.html").read_text().replace('"../', '"../../')
+    page = (ROOT / "site" / "demo.html").read_text()
+    for key, value in {
+        "header": header,
+        "title": html.escape(demo["title"]),
+        "description": html.escape(demo["description"]),
+        "tags": tags,
+        "static_hidden": "" if has_static else " hidden",
+    }.items():
+        page = page.replace("{{" + key + "}}", value)
+    (SITE / name / "index.html").write_text(page)
 
 
 def main() -> None:
     shutil.rmtree(SITE, ignore_errors=True)
+    (SITE / "public" / "appstat").mkdir(parents=True)
     sources = {
         source.stem: re.sub(r"^lazy (import|from)", r"\1", source.read_text(), flags=re.M)
         for source in sorted((ROOT / "src" / "appstat").glob("*.py"))
     }
-    demos: list[Path] = []
-    for notebook in sorted((ROOT / "work").glob("Week[0-9]/*/*_marimo.py")):
-        name = notebook.stem.removesuffix("_marimo")
-        out = SITE / name
-        text = notebook.read_text()
-        modules = appstat_modules(text, sources)
-        with tempfile.TemporaryDirectory() as tmp:
-            copy = Path(tmp) / notebook.name
-            copy.write_text(with_bootstrap(name, text, modules, sources) if modules else text)
-            subprocess.run(
-                ["marimo", "export", "html-wasm", str(copy), "-o", str(out), "--mode", "run", "-f"],
-                check=True,
-            )
-        (SITE / "public" / "appstat").mkdir(parents=True, exist_ok=True)
-        if modules:  # one file to download instead of one per module
-            bundle = "\f".join(f"{m}\n{sources[m]}" for m in ("__init__", *sorted(modules)))
-            (SITE / "public" / "appstat" / f"{name}.txt").write_text(bundle)
-        for pattern in DATA.get(name, []):  # notebooks read these through public/
-            for data in notebook.parent.glob(pattern):
-                shutil.copy(data, SITE / "public" / data.name)
-        demos.append(out)
-        print(f"built {out.name}")
-    share_assets(demos)
+    notebooks = sorted((ROOT / "work").glob("Week[0-9]/*/*_marimo.py"))
+    with ThreadPoolExecutor(4) as pool:  # each export waits mostly on a notebook kernel
+        apps = list(pool.map(lambda nb: build_demo(nb, sources), notebooks))
+    share_assets(apps)
     write_landing()
+    (SITE.parent / "site").mkdir(exist_ok=True)
+    for name in ("demo.js", "landing.js", "site.css"):
+        shutil.copy(ROOT / "site" / name, SITE.parent / "site" / name)
+    shutil.copy(ROOT / "site" / "sw.js", SITE.parent / "sw.js")
 
 
 if __name__ == "__main__":

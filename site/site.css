@@ -65,3 +65,26 @@ mark { background: var(--mark); color: inherit; padding: 0 0.1em; }
   .group > h2 small { display: inline; margin-left: 0.4rem; }
 }
 @media (prefers-reduced-motion: no-preference) { .demo, .rail button { transition: border-color 0.15s ease; } }
+
+/* demo page */
+.demo-page { max-width: 80rem; margin: 0 auto; padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 3rem; }
+.demo-page .back { margin: 0 0 0.6rem; font-size: 0.95rem; }
+.demo-page h1 { font: 600 clamp(1.6rem, 4vw, 2.2rem)/1.15 var(--serif); margin: 0; }
+.demo-page .what { margin: 0.3rem 0 0.6rem; color: var(--muted); max-width: 44rem; }
+.modes { display: flex; gap: 0; margin: 1.2rem 0 0; border-bottom: 1px solid var(--rule); }
+.modes button { font: inherit; padding: 0.5rem 1rem; color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.modes button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.frame { position: relative; min-height: 60vh; }
+.frame iframe { display: block; width: 100%; height: calc(100vh - 12rem); min-height: 28rem; border: 0; background: #fff; }
+.frame .skeleton { position: absolute; inset: 1rem 0 auto; height: 24rem; border-radius: 8px; background: linear-gradient(90deg, #ece9f5 25%, #f8f6ff 50%, #ece9f5 75%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
+.frame .skeleton[hidden], .frame iframe[hidden], .frame .load[hidden] { display: none; }
+.frame iframe:not([hidden]) ~ .skeleton, .frame:has(iframe:not([hidden])) .skeleton { display: none; }
+.frame .load { padding: 2.5rem 0; max-width: 34rem; }
+.frame .run { font: inherit; padding: 0.6rem 1.2rem; color: #fff; background: var(--accent); border: 0; border-radius: 6px; cursor: pointer; }
+.frame .run:hover { background: var(--ink); }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .frame .skeleton { animation: none; } }
+.group.by-topic { grid-template-columns: 1fr; }
+.group.by-topic > h2 { position: static; margin: 0 0 1rem; padding-bottom: 0.3rem; font-size: 1.6rem; color: var(--ink); opacity: 1; border-bottom: 2px solid var(--accent); }
+.demo-page .tag { font: 0.78rem var(--mono); color: var(--muted); background: #fff; border: 1px solid var(--rule); border-radius: 999px; padding: 0.05rem 0.6rem; }
+.demo-page .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }

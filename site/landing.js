@@ -7,6 +7,12 @@ const haystack = demos.map((d) => [d.title, d.description, ...d.categories, ...d
 const terms = () => state.q.toLowerCase().split(/\s+/).filter(Boolean);
 const matches = (i, topic) => terms().every((t) => haystack[i].includes(t)) && (!topic || demos[i].categories.includes(topic));
 
+// Fetch the read-only page while the pointer is on the link. The 28 MB app waits for a click.
+function prefetch(href) {
+  if (navigator.connection?.saveData) return;
+  document.head.append(Object.assign(document.createElement("link"), { rel: "prefetch", href }));
+}
+
 function marked(node, text, found) {
   if (!found.length) return node.append(text);
   const re = new RegExp("(" + found.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
@@ -21,6 +27,8 @@ function card(d) {
   const el = document.createElement("article");
   el.className = "demo";
   const a = Object.assign(document.createElement("a"), { href: d.path });
+  a.addEventListener("pointerenter", () => prefetch(d.path + "static.html"), { once: true });
+  a.addEventListener("focus", () => prefetch(d.path + "static.html"), { once: true });
   marked(a, d.title, found);
   const h = document.createElement("h3");
   h.append(a);
@@ -55,7 +63,7 @@ function card(d) {
 
 function group(label, big, items) {
   const s = document.createElement("section");
-  s.className = "group";
+  s.className = label ? "group" : "group by-topic"; // a topic name is too long for the week numeral column
   const h = document.createElement("h2");
   h.append(big);
   if (label) h.append(Object.assign(document.createElement("small"), { textContent: label }));
@@ -113,3 +121,4 @@ addEventListener("keydown", (e) => {
   if (e.key === "Escape" && state.q) set({ q: "" });
 });
 render();
+navigator.serviceWorker?.register("sw.js");
