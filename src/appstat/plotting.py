@@ -1,3 +1,5 @@
+"""Plots of a fit, its pulls and the chi-squared distribution, and the fit summary text."""
+
 from collections.abc import Callable
 
 from matplotlib.axes import Axes

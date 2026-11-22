@@ -1,3 +1,5 @@
+"""Weighted means, chi-squared tests, p-values, likelihood intervals and Monte Carlo helpers."""
+
 from collections.abc import Callable
 
 from scipy.special import gammaincc, gammaln, xlogy

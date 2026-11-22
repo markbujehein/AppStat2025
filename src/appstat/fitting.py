@@ -1,3 +1,5 @@
+"""Least-squares and likelihood fits with Minuit, plus pulls and polynomial chi-squared scans."""
+
 from collections.abc import Callable
 
 lazy import numpy as np

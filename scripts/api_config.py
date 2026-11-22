@@ -13,6 +13,7 @@ lines = [
     "  package: appstat",
     "  source_dir: src",
     "  dir: reference",
+    "  title: API reference",
     "  parser: numpy",
     "  renderer:",
     "    style: markdown",
