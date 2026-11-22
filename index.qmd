@@ -5,6 +5,7 @@ listing:
     contents: demos.yml
     type: grid
     grid-columns: 3
+    page-size: 30
     categories: true
     fields: [title, description, categories]
     sort-ui: false
@@ -31,6 +32,15 @@ Interactive notebooks adapted from the [Applied Statistics 2025/26](https://www.
 
 ::: {#demos}
 :::
+
+```{=html}
+<script>
+const markWeek = () => document.querySelectorAll(".week-nav .chip").forEach(c =>
+  c.classList.toggle("active", c.getAttribute("href") === (location.hash || "#")));
+addEventListener("hashchange", markWeek);
+markWeek();
+</script>
+```
 
 ## Week 0: notebooks
 
