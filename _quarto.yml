@@ -32,17 +32,3 @@ execute:
   enabled: true
   error: true
   freeze: auto  # re-run a notebook only when its file changed; results live in _freeze/
-
-# API reference for src/appstat, generated from the numpydoc docstrings (pixi run api).
-quartodoc:
-  package: appstat
-  source_dir: src
-  dir: reference
-  parser: numpy
-  sections:
-    - title: appstat
-      desc: Helper functions for the exercises.
-      contents:
-        - stats
-        - fitting
-        - plotting

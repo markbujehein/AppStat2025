@@ -25,7 +25,6 @@ pytest = ">=9.2.0,<10"
 pre-commit = ">=4.7.0,<5"
 nbstripout = ">=0.9.2,<0.10"
 quarto = ">=1.11.9,<2"
-quartodoc = ">=0.11.1,<0.12"
 
 [pypi-dependencies]
 appstat = { path = ".", editable = true }
@@ -39,8 +38,25 @@ fmt = "ruff format --check src tests scripts"
 test = "pytest"
 check = { depends-on = ["lint", "lint-md", "fmt", "test"] }
 hooks = "pre-commit install"
-api = "quartodoc build"
 strip = "nbstripout work/*/*.ipynb work/*/*/*.ipynb"
-clean = "python scripts/clean.py"
-docs = { cmd = "quarto render && python scripts/build_demos.py", depends-on = ["api"] }
-preview = "quarto preview"
+clean-site = "rm -rf _site .quarto site_libs index.html index-listing.json"
+clean-api = "rm -rf reference _quartodoc.yml objects.json"
+clean-caches = "rm -rf .pytest_cache .ruff_cache scripts/__pycache__ src/appstat/__pycache__ tests/__pycache__"
+# leftovers of an interrupted quarto render, and marimo caches
+clean-work = "rm -rf work/*/*_mark.html work/*/*_mark_files work/*/*/*_mark.html work/*/*/*_mark_files work/*/*/__marimo__"
+clean = { depends-on = ["clean-site", "clean-api", "clean-caches", "clean-work"] }
+docs = { cmd = "quarto render && python scripts/build_demos.py", depends-on = [{ task = "api", environment = "docs" }] }
+preview = { cmd = "quarto preview --render none", depends-on = ["docs"] }
+
+# quartodoc needs griffe 1.x, but marimo pulls in griffe 2 from PyPI: keep it in its own environment.
+# Run it with `pixi run -e docs api`.
+[feature.docs.dependencies]
+python = ">=3.15.2,<3.16"
+quartodoc = ">=0.11.1,<0.12"
+griffe = "<2"
+
+[feature.docs.tasks]
+api = "python scripts/api_config.py && quartodoc build --config _quartodoc.yml"
+
+[environments]
+docs = { features = ["docs"], no-default-feature = true }
