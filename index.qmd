@@ -113,6 +113,16 @@ Are two distributions the same? Means, χ² and Kolmogorov-Smirnov compared.
 :::
 
 ::: {.demo-card}
+### [Determining genotypes](demos/DeterminingGenotypes/)
+Bayes' theorem on noisy gene reads, checked by simulation.
+:::
+
+::: {.demo-card}
+### [ROC curves](demos/ROCCurves/)
+Move a cut and watch the ROC curve and its area for Gaussian signal and background.
+:::
+
+::: {.demo-card}
 ### [Random digits](demos/RandomDigitsTest/)
 Which series of digits are random? Test frequencies, gaps and sequences.
 :::
@@ -136,6 +146,27 @@ Correct a distance measurement for the trends of four variables.
 ::: {.demo-card}
 ### [Fisher discriminant](demos/FisherDiscriminant/)
 Combine variables to separate iris species.
+:::
+
+:::
+
+## Week 7: interactive demos
+
+::: {.demo-grid}
+
+::: {.demo-card}
+### [Estimating π](demos/PiEstimate/)
+Random points give π and the volume of a ball in many dimensions.
+:::
+
+::: {.demo-card}
+### [Stratification](demos/Stratification/)
+Beat the 1/√N law of Monte Carlo by sampling where the function varies.
+:::
+
+::: {.demo-card}
+### [Fitting tricks](demos/FittingTricks/)
+Centre the variable, share parameters, normalise the mix: three ways to make a fit work.
 :::
 
 :::
