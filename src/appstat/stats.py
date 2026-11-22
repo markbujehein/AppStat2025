@@ -793,3 +793,10 @@ def profile_x(
     error = np.sqrt(squares[keep] / (n[keep] - 1) / n[keep])
     centres = low + (np.arange(n_bins) + 0.5) * (high - low) / n_bins
     return centres[keep], mean[keep], error
+
+
+def correlation_matrix(covariance: np.ndarray) -> np.ndarray:
+    """Correlation coefficients from a covariance matrix: covariance over the errors multiplied."""
+    covariance = np.asarray(covariance, dtype=float)
+    errors = np.sqrt(np.diag(covariance))
+    return covariance / np.outer(errors, errors)

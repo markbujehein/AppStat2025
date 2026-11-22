@@ -3,7 +3,12 @@
 import numpy as np
 import pytest
 
-from appstat.stats import dispersion_chi2, multinomial_chi2, two_sample_pvalues
+from appstat.stats import (
+    correlation_matrix,
+    dispersion_chi2,
+    multinomial_chi2,
+    two_sample_pvalues,
+)
 
 
 def test_multinomial_chi2_matches_hand_calculation():
@@ -115,3 +120,11 @@ def test_two_sample_pvalues_reject_samples_of_different_size():
     # THEN / EXPECT an error, not a wrong p-value
     with pytest.raises(ValueError):
         two_sample_pvalues(np.arange(10.0), np.arange(20.0), 5, (0, 20))
+
+
+def test_correlation_matrix_scales_the_covariance_by_the_uncertainties():
+    # IF variances 4 and 1 with covariance 1: 1 / (2 * 1)
+    corr = correlation_matrix(np.array([[4.0, 1.0], [1.0, 1.0]]))
+
+    # THEN / EXPECT ones on the diagonal and 0.5 off it
+    np.testing.assert_allclose(corr, [[1.0, 0.5], [0.5, 1.0]])

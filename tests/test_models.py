@@ -91,3 +91,39 @@ def test_exp_cos2_cdf_works_on_an_array_of_bin_edges():
     # EXPECT zero at the start, rising
     assert values[0] == pytest.approx(0.0)
     assert np.all(np.diff(values) > 0)
+
+
+def test_exponential_mixture_has_the_total_n_and_the_right_shape():
+    # IF two lifetimes mixed 30 / 70
+    from appstat.models import exponential_mixture
+
+    total = integrate.quad(lambda t: exponential_mixture(t, 1000.0, 0.3, 10.0, 2.0), 0, np.inf)[0]
+
+    # THEN / EXPECT the integral is N, and the value at 0 is N (f / tau1 + (1 - f) / tau2)
+    assert total == pytest.approx(1000.0)
+    assert exponential_mixture(0.0, 1000.0, 0.3, 10.0, 2.0) == pytest.approx(1000 * (0.03 + 0.35))
+
+
+def test_two_exponentials_is_the_sum_of_two_decays():
+    # THEN / EXPECT
+    from appstat.models import two_exponentials
+
+    assert two_exponentials(5.0, 3.0, 10.0, 2.0, 2.0) == pytest.approx(
+        3 * np.exp(-0.5) + 2 * np.exp(-2.5)
+    )
+
+
+def test_peak_series_has_geometric_peak_areas_on_a_constant():
+    # IF narrow peaks 1.4 apart on a floor of 3, over 0 to 10
+    from appstat.models import peak_series
+
+    area = integrate.quad(
+        lambda x: peak_series(x, 2000.0, 0.5, 1.4, 1.4, 0.05, 3.0, 5),
+        0,
+        10,
+        limit=200,
+        points=[1.4, 2.8, 4.2, 5.6, 7.0],
+    )[0]
+
+    # THEN / EXPECT the peaks hold N (1 - (1 - f)^5) in all, and the floor 3 * 10
+    assert area == pytest.approx(2000 * (1 - 0.5**5) + 30.0, rel=1e-3)

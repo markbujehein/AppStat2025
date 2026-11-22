@@ -154,3 +154,28 @@ def apply_corrections(measured: np.ndarray, *relative_biases: np.ndarray) -> np.
     for bias in relative_biases:
         corrected = corrected / (1 + bias)
     return corrected
+
+
+def two_exponentials(x: np.ndarray, n1: float, tau1: float, n2: float, tau2: float) -> np.ndarray:
+    """``n1 * exp(-x / tau1) + n2 * exp(-x / tau2)``: heights that correlate with the lifetimes."""
+    return n1 * np.exp(-x / tau1) + n2 * np.exp(-x / tau2)
+
+
+def exponential_mixture(x: np.ndarray, n: float, f: float, tau1: float, tau2: float) -> np.ndarray:
+    """``n`` times a normalised mix of two decays, a fraction ``f`` with lifetime ``tau1``."""
+    return n * (f / tau1 * np.exp(-x / tau1) + (1 - f) / tau2 * np.exp(-x / tau2))
+
+
+def peak_series(
+    x: np.ndarray, n: float, f: float, mu: float, dmu: float, sigma: float, cst: float, n_peaks: int
+) -> np.ndarray:
+    """
+    Gaussian peaks at ``mu``, ``mu + dmu``, ... on a constant, with areas ``n f (1 - f)**k``.
+
+    Sharing ``f``, ``dmu`` and ``sigma`` between the peaks is what gives a fit its precision.
+    """
+    k = np.arange(n_peaks)
+    areas = n * f * (1 - f) ** k
+    x = np.asarray(x, dtype=float)[..., np.newaxis]
+    gauss = np.exp(-0.5 * ((x - (mu + dmu * k)) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi))
+    return (areas * gauss).sum(axis=-1) + cst
