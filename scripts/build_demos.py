@@ -6,12 +6,15 @@ The browser's Python (Pyodide) cannot parse ``lazy import`` ("SyntaxError: inval
 downloaded copy has plain imports. The files in ``src/`` and ``work/`` are not changed.
 """
 
+import json
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "_site" / "demos"
@@ -44,6 +47,51 @@ DATA = {
     "Calibration": ["data_calib.txt"],
     "FisherDiscriminant": ["DataSet_AndersonFisherIris.txt"],
 }
+
+
+def plain(text: str) -> str:
+    """Notebook markdown without LaTeX, bold and code marks, for search and plain display."""
+    return re.sub(r"[$*`\\]", "", text).strip()
+
+
+def lessons(notebook: Path) -> tuple[list[str], list[str]]:
+    """The section headings and the numbered "What to take away" points of a marimo notebook."""
+    lines = notebook.read_text().splitlines()
+    headings = [plain(m[1]) for line in lines if (m := re.match(r"    ##+ (.+)", line))]
+    start = next(
+        (i for i, line in enumerate(lines) if line.strip() == "## What to take away"), None
+    )
+    points: list[str] = []
+    for line in lines[start + 1 :] if start is not None else []:
+        if line.strip() == '""")':
+            break
+        if m := re.match(r"\s*\d+\. (.+)", line):
+            points.append(m[1])
+        elif points and line.strip():
+            points[-1] += " " + line.strip()
+    return [h for h in headings if h != "What to take away"], [plain(p) for p in points]
+
+
+def write_search_index() -> None:
+    """``demos/search-index.json``: what the Lessons page (methods.qmd) searches."""
+    index = []
+    for demo in yaml.safe_load((ROOT / "demos.yml").read_text()):
+        name = demo["path"].strip("/").removeprefix("demos/")
+        notebook = next((ROOT / "work").glob(f"Week[0-9]/*/{name}_marimo.py"))
+        headings, points = lessons(notebook)
+        index.append(
+            {
+                "title": demo["title"],
+                "description": demo["description"],
+                "path": demo["path"],
+                "categories": demo["categories"],
+                "headings": headings,
+                "takeaways": points,
+            }
+        )
+    (SITE / "search-index.json").write_text(json.dumps(index, ensure_ascii=False))
+
+
 MODULES = tuple(sorted(p.stem for p in (ROOT / "src" / "appstat").glob("*.py")))
 
 
@@ -77,6 +125,7 @@ def main() -> None:
                 shutil.copy(data, out / "public" / data.name)
         print(f"built {out.relative_to(ROOT)}")
     shutil.rmtree(SITE / "_appstat")
+    write_search_index()
 
 
 if __name__ == "__main__":

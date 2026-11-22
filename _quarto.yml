@@ -2,6 +2,7 @@ project:
   type: website
   render:
     - index.qmd
+    - methods.qmd
     - reference/*.qmd
     - work/Week0/*.ipynb
 
@@ -14,6 +15,8 @@ website:
     left:
       - href: index.qmd
         text: Notebooks
+      - href: methods.qmd
+        text: Lessons
       - href: reference/index.qmd
         text: API reference
     right:

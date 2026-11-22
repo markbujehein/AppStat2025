@@ -1,0 +1,54 @@
+---
+title: Lessons
+---
+
+::: {.lead-in}
+Search the take-aways and section titles of every demo. Try `uncertainty`, `bias`, `ROC` or `Poisson`.
+:::
+
+```{=html}
+<input id="q" class="lesson-search" type="search" placeholder="Search lessons ( / )" aria-label="Search lessons" autocomplete="off">
+<p id="status" class="lesson-status" aria-live="polite"></p>
+<ul id="results" class="lesson-results">
+  <li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li>
+</ul>
+<script type="module">
+const box = document.getElementById("q"), list = document.getElementById("results"),
+      status = document.getElementById("status");
+const entries = await (await fetch("demos/search-index.json")).json();
+const text = e => [e.title, e.description, ...e.categories, ...e.headings, ...e.takeaways].join(" ").toLowerCase();
+const haystacks = entries.map(text);
+
+function mark(node, string, terms) {
+  const re = new RegExp("(" + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+  string.split(re).forEach((part, i) => {
+    if (i % 2) { const m = document.createElement("mark"); m.textContent = part; node.append(m); }
+    else node.append(part);
+  });
+}
+
+function render() {
+  const terms = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+  history.replaceState(null, "", terms.length ? "?find=" + encodeURIComponent(box.value) : location.pathname);
+  const hits = entries.filter((_, i) => terms.every(t => haystacks[i].includes(t)));
+  status.textContent = `${hits.length} of ${entries.length} demos`;
+  list.replaceChildren(...hits.map(e => {
+    const li = document.createElement("li"), a = document.createElement("a"), tags = document.createElement("small");
+    a.href = e.path; a.textContent = e.title; tags.textContent = e.categories.join(" · ");
+    li.append(a, " ", tags);
+    const shown = terms.length ? e.takeaways.filter(p => terms.some(t => p.toLowerCase().includes(t))) : [];
+    if (shown.length) {
+      const ul = document.createElement("ul");
+      shown.forEach(p => { const item = document.createElement("li"); mark(item, p, terms); ul.append(item); });
+      li.append(ul);
+    }
+    return li;
+  }));
+}
+
+box.value = new URLSearchParams(location.search).get("find") ?? "";
+box.addEventListener("input", render);
+addEventListener("keydown", e => { if (e.key === "/" && document.activeElement !== box) { e.preventDefault(); box.focus(); } });
+render();
+</script>
+```

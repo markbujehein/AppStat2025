@@ -37,3 +37,14 @@ td > a[href*="reference/"] { white-space: nowrap; } // API module names must not
 .chip { padding: 0.15rem 0.8rem; border: 1px solid #e1dfe8; border-radius: 999px; background: #fff; font-size: 0.9rem; text-decoration: none; }
 .chip:hover { border-color: #5636d1; }
 .chip.active { background: #5636d1; border-color: #5636d1; color: #fff; }
+
+.lesson-search { width: 100%; max-width: 36rem; padding: 0.5rem 0.8rem; border: 1px solid #e1dfe8; border-radius: 6px; font-size: 1rem; }
+.lesson-status { color: #5a5078; margin: 0.5rem 0; }
+.lesson-results { list-style: none; padding: 0; }
+.lesson-results > li { padding: 0.8rem 0; border-bottom: 1px solid #e1dfe8; }
+.lesson-results small { color: #5a5078; }
+.lesson-results ul { margin: 0.4rem 0 0; padding-left: 1.2rem; color: #5a5078; }
+.lesson-results mark { background: #d8f7ec; padding: 0 0.1em; }
+.lesson-results .skeleton { height: 2.2rem; border-radius: 6px; background: linear-gradient(90deg, #ece9f5 25%, #f8f6ff 50%, #ece9f5 75%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; margin: 0.8rem 0; border: 0; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .lesson-results .skeleton { animation: none; } }
