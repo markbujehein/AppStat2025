@@ -3,7 +3,7 @@
 Fork of the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course repository (NBI, KU).
 
 * `Week0`–`Week8`, `Project`, `DataAndCodeFor*`: course material (only fixes for current numpy/iminuit).
-* `work/`: my own copies of the exercises (`*_mark.ipynb`).
+* `work/`: my own copies of the exercises (`*_mark.ipynb`, or `*_marimo.py` once converted).
 * `src/appstat/`: helper functions I wrote, tested in `tests/`.
 
 ## Run
