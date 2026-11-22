@@ -37,5 +37,7 @@ footer.footer { color: #5a5078; }
 .demo-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
 .demo-card h3 a { text-decoration: none; }
 .demo-card h3 a::after { content: ""; position: absolute; inset: 0; } // whole card is the link
+td > a[href*="reference/"] { white-space: nowrap; } // API module names must not wrap mid-word
+.demo-card h3 a.anchorjs-link { display: none; } // Quarto's "#" icon would cover the card link
 .demo-card { position: relative; }
 .demo-card p { margin: 0; color: #5a5078; font-size: 0.95rem; }

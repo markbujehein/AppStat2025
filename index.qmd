@@ -12,7 +12,7 @@ listing:
 ---
 
 ::: {.lead-in}
-Interactive demonstrations and notebooks from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course. Every demo runs in your browser. The first load takes a few seconds.
+Interactive notebooks adapted from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course. Every demo runs in your browser. The first load takes a few seconds.
 :::
 
 ## Week 1: interactive demos
