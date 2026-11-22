@@ -18,3 +18,5 @@ objects.json
 _freeze/
 __marimo__/
 .vscode/settings.json
+.playwright-mcp/
+.remember/
