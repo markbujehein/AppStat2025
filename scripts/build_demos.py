@@ -76,24 +76,21 @@ def lessons(notebook: Path) -> tuple[list[str], list[str]]:
     return [h for h in headings if h != "What to take away"], [plain(p) for p in points]
 
 
-def write_search_index() -> None:
-    """``demos/search-index.json``: what the Lessons page (methods.qmd) searches."""
-    index = []
+def write_landing() -> None:
+    """``_site/index.html``: the landing page. It embeds the demo data, so nothing is fetched."""
+    demos = []
     for demo in yaml.safe_load((ROOT / "demos.yml").read_text()):
         name = demo["path"].strip("/").removeprefix("demos/")
-        notebook = next((ROOT / "work").glob(f"Week[0-9]/*/{name}_marimo.py"))
-        headings, points = lessons(notebook)
-        index.append(
-            {
-                "title": demo["title"],
-                "description": demo["description"],
-                "path": demo["path"],
-                "categories": demo["categories"],
-                "headings": headings,
-                "takeaways": points,
-            }
-        )
-    (SITE / "search-index.json").write_text(json.dumps(index, ensure_ascii=False))
+        headings, points = lessons(next((ROOT / "work").glob(f"Week[0-9]/*/{name}_marimo.py")))
+        demos.append({**demo, "headings": headings, "takeaways": points})
+    # "</" must not end the script block early
+    data = json.dumps(demos, ensure_ascii=False).replace("</", "<\\/")
+    page = (ROOT / "site" / "landing.html").read_text()
+    header = (ROOT / "site" / "header.html").read_text().replace('"../', '"./')
+    page = page.replace("{{header}}", header).replace("{{data}}", data)
+    (SITE.parent / "index.html").write_text(page)
+    (SITE.parent / "site").mkdir(exist_ok=True)
+    shutil.copy(ROOT / "site" / "landing.js", SITE.parent / "site" / "landing.js")
 
 
 def appstat_modules(text: str, sources: dict[str, str]) -> set[str]:
@@ -171,7 +168,7 @@ def main() -> None:
         demos.append(out)
         print(f"built {out.name}")
     share_assets(demos)
-    write_search_index()
+    write_landing()
 
 
 if __name__ == "__main__":

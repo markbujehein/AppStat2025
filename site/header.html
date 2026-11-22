@@ -1,0 +1,13 @@
+<header class="site-header">
+  <a class="brand" href="../index.html">Applied Statistics <b>2025</b></a>
+  <nav>
+    <a href="../index.html" data-section="demos">Demos</a>
+    <a href="../reference/index.html" data-section="reference">API reference</a>
+    <a href="https://github.com/markbujehein/AppStat2025">GitHub</a>
+  </nav>
+</header>
+<script>
+  document.body.prepend(document.querySelector(".site-header")); // Quarto wraps includes in its content column
+  const here = location.pathname.includes("/reference/") ? "reference" : "demos";
+  document.querySelector(`.site-header [data-section="${here}"]`)?.setAttribute("aria-current", "page");
+</script>

@@ -1,37 +1,18 @@
 project:
   type: website
   render:
-    - index.qmd
-    - methods.qmd
     - reference/*.qmd
-    - work/Week0/*.ipynb
 
+# Only the API reference is built by Quarto. The landing page and the demos are written by
+# scripts/build_demos.py. Both use site/header.html, so the navigation is the same everywhere.
 website:
   title: Applied Statistics 2025
   repo-url: https://github.com/markbujehein/AppStat2025
   favicon: favicon.svg
-  navbar:
-    background: "#1d1538"
-    left:
-      - href: index.qmd
-        text: Notebooks
-      - href: methods.qmd
-        text: Lessons
-      - href: reference/index.qmd
-        text: API reference
-    right:
-      - icon: github
-        href: https://github.com/markbujehein/AppStat2025
-        aria-label: GitHub
 
 format:
   html:
     theme: theme.scss
+    css: site/site.css
+    include-before-body: site/header.html
     toc: false
-
-# Notebooks are stored without outputs (nbstripout), so Quarto runs them.
-# error: true keeps a failing notebook on the site, with the traceback shown.
-execute:
-  enabled: true
-  error: true
-  freeze: auto  # re-run a notebook only when its file changed; results live in _freeze/

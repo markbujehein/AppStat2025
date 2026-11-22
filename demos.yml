@@ -1,98 +1,122 @@
-# One entry per demo. Read by the landing page listing (index.qmd) and by scripts/build_demos.py.
-# categories: the week, then the topics. A new topic here becomes a filter chip.
+# One entry per demo. Read by scripts/build_demos.py, which writes the landing page.
+# week: course week. categories: topics, each a filter on the landing page.
 - title: "Weighted mean and χ²"
   description: "Combine measurements with different uncertainties, and see what the χ² says about them."
   path: demos/WeightedMeanSigmaChi2/
-  categories: ["Week 1", "χ²", "Uncertainties"]
+  week: 1
+  categories: ["χ²", "Uncertainties"]
 - title: "Error propagation"
   description: "The error propagation formula against a simulation, with and without correlations."
   path: demos/ErrorPropagation/
-  categories: ["Week 1", "Uncertainties", "Monte Carlo"]
+  week: 1
+  categories: ["Uncertainties", "Monte Carlo"]
 - title: "The χ² test"
   description: "Simulate many experiments and compare their χ² with the χ² distribution."
   path: demos/ChiSquareTest/
-  categories: ["Week 1", "χ²", "Hypothesis testing", "Fitting"]
+  week: 1
+  categories: ["χ²", "Hypothesis testing", "Fitting"]
 - title: "χ² for three different fits"
   description: "A line, an oscillation and a histogram share one χ² distribution."
   path: demos/ChiSquareTest_SeveralExamples/
-  categories: ["Week 1", "χ²", "Fitting"]
+  week: 1
+  categories: ["χ²", "Fitting"]
 - title: "Anscombe's quartet"
   description: "Four data sets with the same numbers, and what only a plot shows."
   path: demos/AnscombesQuartet/
-  categories: ["Week 1", "Data exploration"]
+  week: 1
+  categories: ["Data exploration"]
 - title: "The central limit theorem"
   description: "Add random numbers from different distributions and watch the sums turn Gaussian."
   path: demos/CentralLimit/
-  categories: ["Week 1", "Distributions", "Monte Carlo"]
+  week: 1
+  categories: ["Distributions", "Monte Carlo"]
 - title: "Binomial, Poisson and Gaussian"
   description: "Three distributions with one mean, and when a χ² fit of counts can be trusted."
   path: demos/BinomialPoissonGaussian/
-  categories: ["Week 2", "Distributions", "χ²"]
+  week: 2
+  categories: ["Distributions", "χ²"]
 - title: "Three ways to fit a histogram"
   description: "χ², binned and unbinned likelihood on the same data, and where they differ."
   path: demos/FittingMethods/
-  categories: ["Week 2", "Fitting", "Likelihood", "χ²"]
+  week: 2
+  categories: ["Fitting", "Likelihood", "χ²"]
 - title: "The principle of maximum likelihood"
   description: "Scan the lifetime, read the uncertainty off the curve, and compare with Minuit."
   path: demos/LikelihoodFit/
-  categories: ["Week 2", "Likelihood", "Fitting", "Uncertainties"]
+  week: 2
+  categories: ["Likelihood", "Fitting", "Uncertainties"]
 - title: "How long is the table?"
   description: "Outlier rejection, pulls and weighted means on 17 years of student measurements."
   path: demos/TableMeasurements/
-  categories: ["Week 2", "Data cleaning", "Uncertainties"]
+  week: 2
+  categories: ["Data cleaning", "Uncertainties"]
 - title: "Transformation and accept/reject"
   description: "Make random numbers follow a function, two ways, and estimate its integral."
   path: demos/TransformationAcceptReject/
-  categories: ["Week 3", "Monte Carlo", "Distributions"]
+  week: 3
+  categories: ["Monte Carlo", "Distributions"]
 - title: "Coffee usage"
   description: "Fit the length of the Christmas vacation from a coffee machine's cup counter."
   path: demos/CoffeeUsage/
-  categories: ["Week 3", "Fitting"]
+  week: 3
+  categories: ["Fitting"]
 - title: "Size of Danish companies"
   description: "A power law, an exponential and a mix, against four orders of magnitude."
   path: demos/CompanySize/
-  categories: ["Week 3", "Fitting", "Distributions"]
+  week: 3
+  categories: ["Fitting", "Distributions"]
 - title: "Ehrenfest urn"
   description: "Markov chains: simulate, then solve with a matrix, and watch the equilibrium."
   path: demos/EhrenfestBallExperiment/
-  categories: ["Week 4", "Markov chains", "Monte Carlo"]
+  week: 4
+  categories: ["Markov chains", "Monte Carlo"]
 - title: "Hypothesis testing"
   description: "Are two distributions the same? Means, χ² and Kolmogorov-Smirnov compared."
   path: demos/HypothesisTesting/
-  categories: ["Week 4", "Hypothesis testing", "χ²"]
+  week: 4
+  categories: ["Hypothesis testing", "χ²"]
 - title: "Determining genotypes"
   description: "Bayes' theorem on noisy gene reads, checked by simulation."
   path: demos/DeterminingGenotypes/
-  categories: ["Week 4", "Bayes"]
+  week: 4
+  categories: ["Bayes"]
 - title: "ROC curves"
   description: "Move a cut and watch the ROC curve and its area for Gaussian signal and background."
   path: demos/ROCCurves/
-  categories: ["Week 4", "Classification", "Hypothesis testing"]
+  week: 4
+  categories: ["Classification", "Hypothesis testing"]
 - title: "Random digits"
   description: "Which series of digits are random? Test frequencies, gaps and sequences."
   path: demos/RandomDigitsTest/
-  categories: ["Week 4", "Hypothesis testing", "χ²"]
+  week: 4
+  categories: ["Hypothesis testing", "χ²"]
 - title: "ATLAS test beam"
   description: "Electrons or pions: cuts, ROC curves and purity from three detectors."
   path: demos/ATLAStestbeam/
-  categories: ["Week 5", "Classification"]
+  week: 5
+  categories: ["Classification"]
 - title: "Calibration"
   description: "Correct a distance measurement for the trends of four variables."
   path: demos/Calibration/
-  categories: ["Week 5", "Fitting"]
+  week: 5
+  categories: ["Fitting"]
 - title: "Fisher discriminant"
   description: "Combine variables to separate iris species."
   path: demos/FisherDiscriminant/
-  categories: ["Week 5", "Classification"]
+  week: 5
+  categories: ["Classification"]
 - title: "Estimating π"
   description: "Random points give π and the volume of a ball in many dimensions."
   path: demos/PiEstimate/
-  categories: ["Week 7", "Monte Carlo"]
+  week: 7
+  categories: ["Monte Carlo"]
 - title: "Stratification"
   description: "Beat the 1/√N law of Monte Carlo by sampling where the function varies."
   path: demos/Stratification/
-  categories: ["Week 7", "Monte Carlo"]
+  week: 7
+  categories: ["Monte Carlo"]
 - title: "Fitting tricks"
   description: "Centre the variable, share parameters, normalise the mix: three ways to make a fit work."
   path: demos/FittingTricks/
-  categories: ["Week 7", "Fitting", "Likelihood"]
+  week: 7
+  categories: ["Fitting", "Likelihood"]

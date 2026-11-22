@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Applied Statistics 2025</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="site/site.css">
+</head>
+<body>
+{{header}}
+<main class="landing">
+  <section class="intro">
+    <h1>Applied Statistics 2025</h1>
+    <p>Course notebooks as a reference. Search a method or a lesson, read the key points, open the demo.</p>
+    <label class="search">
+      <input id="q" type="search" placeholder="Search lessons, methods, topics" aria-label="Search lessons" autocomplete="off">
+      <kbd>/</kbd>
+    </label>
+  </section>
+  <div class="layout">
+    <aside class="rail">
+      <h2>Topics</h2>
+      <ul id="topics"></ul>
+      <h2>Group by</h2>
+      <ul>
+        <li><button type="button" data-group="week" aria-pressed="true">Week</button></li>
+        <li><button type="button" data-group="topic" aria-pressed="false">Topic</button></li>
+      </ul>
+    </aside>
+    <div id="list"><noscript>Turn on JavaScript to search. The demos are in <code>demos/</code>.</noscript></div>
+  </div>
+</main>
+<script type="application/json" id="data">{{data}}</script>
+<script src="site/landing.js" type="module"></script>
+</body>
+</html>
