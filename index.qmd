@@ -1,6 +1,14 @@
 ---
 title: Applied Statistics 2025
 listing:
+  - id: demos
+    contents: demos.yml
+    type: grid
+    grid-columns: 3
+    categories: true
+    fields: [title, description, categories]
+    sort-ui: false
+    filter-ui: true
   - id: week0
     contents: "work/Week0/*.ipynb"
     type: grid
@@ -15,160 +23,13 @@ listing:
 Interactive notebooks adapted from the [Applied Statistics 2025/26](https://www.nbi.dk/~petersen/Teaching/AppliedStatistics2025.html) course. Every demo runs in your browser. The first load takes a few seconds.
 :::
 
-## Week 1: interactive demos
+## Demos
 
-::: {.demo-grid}
-
-::: {.demo-card}
-### [Weighted mean and χ²](demos/WeightedMeanSigmaChi2/)
-Combine measurements with different uncertainties, and see what the χ² says about them.
+::: {.week-nav}
+[All](#){.chip} [Week 1](#category=Week%201){.chip} [Week 2](#category=Week%202){.chip} [Week 3](#category=Week%203){.chip} [Week 4](#category=Week%204){.chip} [Week 5](#category=Week%205){.chip} [Week 7](#category=Week%207){.chip}
 :::
 
-::: {.demo-card}
-### [Error propagation](demos/ErrorPropagation/)
-The error propagation formula against a simulation, with and without correlations.
-:::
-
-::: {.demo-card}
-### [The χ² test](demos/ChiSquareTest/)
-Simulate many experiments and compare their χ² with the χ² distribution.
-:::
-
-::: {.demo-card}
-### [χ² for three different fits](demos/ChiSquareTest_SeveralExamples/)
-A line, an oscillation and a histogram share one χ² distribution.
-:::
-
-::: {.demo-card}
-### [Anscombe's quartet](demos/AnscombesQuartet/)
-Four data sets with the same numbers, and what only a plot shows.
-:::
-
-::: {.demo-card}
-### [The central limit theorem](demos/CentralLimit/)
-Add random numbers from different distributions and watch the sums turn Gaussian.
-:::
-
-:::
-
-## Week 2: interactive demos
-
-::: {.demo-grid}
-
-::: {.demo-card}
-### [Binomial, Poisson and Gaussian](demos/BinomialPoissonGaussian/)
-Three distributions with one mean, and when a χ² fit of counts can be trusted.
-:::
-
-::: {.demo-card}
-### [Three ways to fit a histogram](demos/FittingMethods/)
-χ², binned and unbinned likelihood on the same data, and where they differ.
-:::
-
-::: {.demo-card}
-### [The principle of maximum likelihood](demos/LikelihoodFit/)
-Scan the lifetime, read the uncertainty off the curve, and compare with Minuit.
-:::
-
-::: {.demo-card}
-### [How long is the table?](demos/TableMeasurements/)
-Outlier rejection, pulls and weighted means on 17 years of student measurements.
-:::
-
-:::
-
-## Week 3: interactive demos
-
-::: {.demo-grid}
-
-::: {.demo-card}
-### [Transformation and accept/reject](demos/TransformationAcceptReject/)
-Make random numbers follow a function, two ways, and estimate its integral.
-:::
-
-::: {.demo-card}
-### [Coffee usage](demos/CoffeeUsage/)
-Fit the length of the Christmas vacation from a coffee machine's cup counter.
-:::
-
-::: {.demo-card}
-### [Size of Danish companies](demos/CompanySize/)
-A power law, an exponential and a mix, against four orders of magnitude.
-:::
-
-:::
-
-## Week 4: interactive demos
-
-::: {.demo-grid}
-
-::: {.demo-card}
-### [Ehrenfest urn](demos/EhrenfestBallExperiment/)
-Markov chains: simulate, then solve with a matrix, and watch the equilibrium.
-:::
-
-::: {.demo-card}
-### [Hypothesis testing](demos/HypothesisTesting/)
-Are two distributions the same? Means, χ² and Kolmogorov-Smirnov compared.
-:::
-
-::: {.demo-card}
-### [Determining genotypes](demos/DeterminingGenotypes/)
-Bayes' theorem on noisy gene reads, checked by simulation.
-:::
-
-::: {.demo-card}
-### [ROC curves](demos/ROCCurves/)
-Move a cut and watch the ROC curve and its area for Gaussian signal and background.
-:::
-
-::: {.demo-card}
-### [Random digits](demos/RandomDigitsTest/)
-Which series of digits are random? Test frequencies, gaps and sequences.
-:::
-
-:::
-
-## Week 5: interactive demos
-
-::: {.demo-grid}
-
-::: {.demo-card}
-### [ATLAS test beam](demos/ATLAStestbeam/)
-Electrons or pions: cuts, ROC curves and purity from three detectors.
-:::
-
-::: {.demo-card}
-### [Calibration](demos/Calibration/)
-Correct a distance measurement for the trends of four variables.
-:::
-
-::: {.demo-card}
-### [Fisher discriminant](demos/FisherDiscriminant/)
-Combine variables to separate iris species.
-:::
-
-:::
-
-## Week 7: interactive demos
-
-::: {.demo-grid}
-
-::: {.demo-card}
-### [Estimating π](demos/PiEstimate/)
-Random points give π and the volume of a ball in many dimensions.
-:::
-
-::: {.demo-card}
-### [Stratification](demos/Stratification/)
-Beat the 1/√N law of Monte Carlo by sampling where the function varies.
-:::
-
-::: {.demo-card}
-### [Fitting tricks](demos/FittingTricks/)
-Centre the variable, share parameters, normalise the mix: three ways to make a fit work.
-:::
-
+::: {#demos}
 :::
 
 ## Week 0: notebooks

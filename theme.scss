@@ -31,13 +31,9 @@ h1.title { font-size: 2.4rem; letter-spacing: -0.01em; margin-bottom: 0.25rem; }
 
 footer.footer { color: #5a5078; }
 
-.demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin: 1rem 0 2rem; }
-.demo-card { background: #fff; border: 1px solid #e1dfe8; border-radius: 6px; padding: 1rem 1.2rem; transition: border-color 0.15s ease; }
-.demo-card:hover { border-color: #5636d1; }
-.demo-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
-.demo-card h3 a { text-decoration: none; }
-.demo-card h3 a::after { content: ""; position: absolute; inset: 0; } // whole card is the link
 td > a[href*="reference/"] { white-space: nowrap; } // API module names must not wrap mid-word
-.demo-card h3 a.anchorjs-link { display: none; } // Quarto's "#" icon would cover the card link
-.demo-card { position: relative; }
-.demo-card p { margin: 0; color: #5a5078; font-size: 0.95rem; }
+
+.week-nav { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.6rem 0; background: $body-bg; border-bottom: 1px solid #e1dfe8; }
+.chip { padding: 0.15rem 0.8rem; border: 1px solid #e1dfe8; border-radius: 999px; background: #fff; font-size: 0.9rem; text-decoration: none; }
+.chip:hover { border-color: #5636d1; }
+.chip.active { background: #5636d1; border-color: #5636d1; color: #fff; }
