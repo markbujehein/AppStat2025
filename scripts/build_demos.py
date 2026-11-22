@@ -1,11 +1,12 @@
 """Export the Week1 to Week8 marimo notebooks as interactive pages in ``_site/demos/<name>/``.
 
 The pages run in the browser (Pyodide), where ``appstat`` is not installed. So each export uses a
-copy of the notebook that first downloads ``appstat`` from ``public/appstat/`` next to the page.
+copy of the notebook that first downloads ``appstat`` from ``public/appstat.txt`` next to the page.
 The browser's Python (Pyodide) cannot parse ``lazy import`` ("SyntaxError: invalid syntax"), so that
 downloaded copy has plain imports. The files in ``src/`` and ``work/`` are not changed.
 """
 
+import hashlib
 import json
 import re
 import shutil
@@ -20,21 +21,24 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "_site" / "demos"
 
 BOOTSTRAP = """    import sys
-
-    import iminuit  # noqa: F401  # imported only by appstat, listed so the browser installs them
-    import scipy  # noqa: F401
-
+__IMPORTS__
     if sys.platform == "emscripten":
         from pathlib import Path
         from urllib.request import urlopen
 
+        # The frontend is shared, so mo.notebook_location() is demos/, and public/ is shared too.
+        # One file holds all modules, as "name, newline, source", separated by form feeds.
         _package = Path("/tmp/appstat_src/appstat")
         _package.mkdir(parents=True, exist_ok=True)
-        for _name in __MODULES__:
-            _url = str(mo.notebook_location() / "public" / "appstat" / f"{_name}.py")
-            (_package / f"{_name}.py").write_text(urlopen(_url).read().decode())
+        _url = str(mo.notebook_location() / "public" / "appstat" / "__NAME__.txt")
+        for _part in urlopen(_url).read().decode().split("\\f"):
+            _name, _, _source = _part.partition("\\n")
+            (_package / f"{_name}.py").write_text(_source)
         sys.path.insert(0, "/tmp/appstat_src")
 """
+
+# Packages that appstat imports. The browser installs a package only if a notebook imports it.
+HEAVY = ("scipy", "iminuit")
 
 
 # Data files each notebook reads. Listed on purpose: the folders also hold private (student) or very
@@ -92,39 +96,81 @@ def write_search_index() -> None:
     (SITE / "search-index.json").write_text(json.dumps(index, ensure_ascii=False))
 
 
-MODULES = tuple(sorted(p.stem for p in (ROOT / "src" / "appstat").glob("*.py")))
+def appstat_modules(text: str, sources: dict[str, str]) -> set[str]:
+    """The appstat modules ``text`` imports, the ones those import, and so on."""
+    found: set[str] = set()
+    todo = re.findall(r"from appstat\.(\w+) import", text)
+    while todo:
+        name = todo.pop()
+        if name not in found:
+            found.add(name)
+            todo += re.findall(r"from appstat\.(\w+) import", sources[name])
+    return found
+
+
+def with_bootstrap(name: str, text: str, modules: set[str], sources: dict[str, str]) -> str:
+    """The notebook with a first step that downloads ``appstat``, and imports only what it needs."""
+    heavy = sorted(
+        pkg
+        for pkg in HEAVY
+        if any(re.search(rf"^(from|import) {pkg}\b", sources[m], re.M) for m in modules)
+    )
+    imports = "".join(f"    import {pkg}  # noqa: F401  # imported by appstat\n" for pkg in heavy)
+    bootstrap = BOOTSTRAP.replace("__IMPORTS__\n", imports).replace("__NAME__", name)
+    return text.replace("    import marimo as mo\n", "    import marimo as mo\n" + bootstrap, 1)
+
+
+def tree_hash(path: Path) -> str:
+    digest = hashlib.sha256()
+    for file in sorted(p for p in path.rglob("*") if p.is_file()):
+        digest.update(file.relative_to(path).as_posix().encode())
+        digest.update(file.read_bytes())
+    return digest.hexdigest()
+
+
+def share_assets(demos: list[Path]) -> None:
+    """Keep one copy of the marimo frontend. Every export ships the same 28 MB, so the browser
+    would download it again for each demo. A demo whose copy differs keeps its own."""
+    reference = tree_hash(demos[0] / "assets")
+    shutil.copytree(demos[0] / "assets", SITE / "assets")
+    for demo in demos:
+        if tree_hash(demo / "assets") != reference:
+            print(f"{demo.name}: assets differ from {demos[0].name}, not shared")
+            continue
+        shutil.rmtree(demo / "assets")
+        page = demo / "index.html"
+        page.write_text(page.read_text().replace("./assets/", "../assets/"))
 
 
 def main() -> None:
     shutil.rmtree(SITE, ignore_errors=True)
-    package = SITE / "_appstat" / "appstat"
-    for source in sorted((ROOT / "src" / "appstat").glob("*.py")):
-        text = re.sub(r"^lazy (import|from)", r"\1", source.read_text(), flags=re.M)
-        package.mkdir(parents=True, exist_ok=True)
-        (package / source.name).write_text(text)
-
+    sources = {
+        source.stem: re.sub(r"^lazy (import|from)", r"\1", source.read_text(), flags=re.M)
+        for source in sorted((ROOT / "src" / "appstat").glob("*.py"))
+    }
+    demos: list[Path] = []
     for notebook in sorted((ROOT / "work").glob("Week[0-9]/*/*_marimo.py")):
         name = notebook.stem.removesuffix("_marimo")
         out = SITE / name
+        text = notebook.read_text()
+        modules = appstat_modules(text, sources)
         with tempfile.TemporaryDirectory() as tmp:
             copy = Path(tmp) / notebook.name
-            copy.write_text(
-                notebook.read_text().replace(
-                    "    import marimo as mo\n",
-                    "    import marimo as mo\n" + BOOTSTRAP.replace("__MODULES__", repr(MODULES)),
-                    1,
-                )
-            )
+            copy.write_text(with_bootstrap(name, text, modules, sources) if modules else text)
             subprocess.run(
                 ["marimo", "export", "html-wasm", str(copy), "-o", str(out), "--mode", "run", "-f"],
                 check=True,
             )
-        shutil.copytree(package, out / "public" / "appstat")
+        (SITE / "public" / "appstat").mkdir(parents=True, exist_ok=True)
+        if modules:  # one file to download instead of one per module
+            bundle = "\f".join(f"{m}\n{sources[m]}" for m in ("__init__", *sorted(modules)))
+            (SITE / "public" / "appstat" / f"{name}.txt").write_text(bundle)
         for pattern in DATA.get(name, []):  # notebooks read these through public/
             for data in notebook.parent.glob(pattern):
-                shutil.copy(data, out / "public" / data.name)
-        print(f"built {out.relative_to(ROOT)}")
-    shutil.rmtree(SITE / "_appstat")
+                shutil.copy(data, SITE / "public" / data.name)
+        demos.append(out)
+        print(f"built {out.name}")
+    share_assets(demos)
     write_search_index()
 
 
